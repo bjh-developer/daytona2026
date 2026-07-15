@@ -2,8 +2,8 @@
     "name": "daytona2026",
     "version": "1.0.0",
     "scripts": {
-      "dev": "next dev",
-      "start-work": "bash start-work.sh"
+      "start-work": "bash start-work.sh",
+      "stop-work": "bash stop-work.sh"
     }
   }
   
