@@ -55,7 +55,7 @@ echo "========================================="
 
 # 5. Start the local server
 # (Modify this command to match how you boot your app)
-npm run dev
+# npm run dev
 
 # For python/flask: python app.py
 # For docker: docker-compose up

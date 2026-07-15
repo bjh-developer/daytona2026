@@ -9,9 +9,12 @@ echo "========================================="
 
 # 1. Kill any lingering background dev servers (Port cleanup)
 # Especially helpful if tools like Next.js or Flask don't exit cleanly
+# Uncomment below when you have dev servers running
 echo "🔌 Cleaning up local development processes..."
-pkill -f "node" || true
-pkill -f "python" || true
+# pkill -f "node" || true    # For Linux/Mac
+# pkill -f "python" || true  # For Linux/Mac
+# taskkill //F //IM node.exe 2>/dev/null || true   # For Windows
+# taskkill //F //IM python.exe 2>/dev/null || true # For Windows
 
 # 2. Code Linting / Formatting Check (Optional but life-saving)
 # Running this before pushing prevents breaking the build for everyone else
