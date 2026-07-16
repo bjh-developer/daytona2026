@@ -17,10 +17,29 @@ else
 fi
 
 # 2. Get the latest code from the remote repository
-echo "🔄 Fetching and pulling latest changes from GitHub..."
-# Replace 'main' with your default branch name if it's different (e.g., 'master' or 'dev')
-git checkout main
-git pull origin main
+echo "🔄 Fetching latest changes from GitHub..."
+git fetch origin
+
+CURRENT_BRANCH=$(git branch --show-current)
+
+if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "master" ]; then
+    # On main: just pull latest
+    echo "📥 Pulling latest $CURRENT_BRANCH..."
+    git pull origin "$CURRENT_BRANCH"
+else
+    # On feature branch: pull branch, then merge main into feature branch to stay current
+    echo "🌿 On feature branch: $CURRENT_BRANCH"
+    
+    # Pull any updates to this branch (e.g., from another machine)
+    git pull origin "$CURRENT_BRANCH" 2>/dev/null || echo "   (Branch not yet on remote, skipping pull)"
+    
+    # Merge main into feature branch to incorporate latest changes
+    echo "🔀 Merging origin/main into your branch to stay up-to-date..."
+    git merge origin/main -m "Merge main into $CURRENT_BRANCH" || {
+        echo "⚠️  Merge conflicts detected. Resolve them, then run: git add . && git commit"
+        exit 1
+    }
+fi
 
 # 3. Restore stashed changes if they existed
 if [ "$STASHED" = true ]; then
