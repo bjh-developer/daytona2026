@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GST Voucher - Claim Your Benefits</title>
+
+  <!-- SGDS styles (public CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@govtechsg/sgds/css/sgds.css">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+  
+  <style>
+    .sgds-masthead {
+      background-color: #f0f0f0;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    .form-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .gov-banner {
+      background-color: #1a1a1a;
+      color: white;
+      padding: 10px 20px;
+      font-size: 12px;
+    }
+    .warning-banner {
+      background-color: #fff3cd;
+      border: 1px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fake Government Masthead -->
+  <div class="gov-banner">
+    <div class="container">
+      <img src="https://www.designsystem.tech.gov.sg/assets/img/logo-sgds.svg" alt="Singapore Government" height="20" style="filter: brightness(0) invert(1);">
+      <span style="margin-left: 10px;">A Singapore Government Agency Website</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="form-container">
+    
+    <!-- Demo Warning Banner -->
+    <div class="warning-banner">
+      <strong>⚠️ DEMO ONLY:</strong> This is a mock phishing page for educational purposes. 
+      Real government sites will NEVER ask for your Telegram/WhatsApp credentials.
+    </div>
+
+    <h1 class="mb-4">GST Voucher Claim</h1>
+    <p class="text-muted mb-4">
+      Claim your GST Voucher benefits. Please verify your identity to proceed.
+    </p>
+
+    <form>
+      <!-- NRIC Field -->
+      <div class="mb-3">
+        <label for="nric" class="form-label">NRIC / FIN</label>
+        <input type="text" class="form-control" id="nric" placeholder="e.g. S1234567A" required>
+        <div class="form-text">Enter your NRIC or FIN number</div>
+      </div>
+
+      <!-- Phone Number -->
+      <div class="mb-3">
+        <label for="phone" class="form-label">Mobile Number</label>
+        <div class="input-group">
+          <span class="input-group-text">+65</span>
+          <input type="tel" class="form-control" id="phone" placeholder="9123 4567" required>
+        </div>
+      </div>
+
+      <!-- THIS IS THE PHISHING PART - Telegram/WhatsApp verification -->
+      <div class="card bg-light mb-4">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="bi bi-telegram text-primary"></i> 
+            Telegram Verification Required
+          </h5>
+          <p class="card-text text-muted small">
+            For security purposes, please enter your Telegram login to verify your identity.
+          </p>
+          
+          <div class="mb-3">
+            <label for="telegram-phone" class="form-label">Telegram Phone Number</label>
+            <input type="tel" class="form-control" id="telegram-phone" placeholder="+65 9123 4567">
+          </div>
+          
+          <div class="mb-3">
+            <label for="telegram-code" class="form-label">Telegram Verification Code</label>
+            <input type="text" class="form-control" id="telegram-code" placeholder="Enter code sent to Telegram">
+            <div class="form-text text-danger">
+              <i class="bi bi-exclamation-triangle"></i> 
+              This is how scammers steal your Telegram account!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg w-100">
+        Verify & Claim Voucher
+      </button>
+      
+      <p class="text-center text-muted mt-3 small">
+        By continuing, you agree to our Terms of Service.
+      </p>
+    </form>
+
+    <!-- Educational Footer -->
+    <div class="alert alert-info mt-5">
+      <h6><i class="bi bi-shield-check"></i> How to spot this scam:</h6>
+      <ul class="mb-0 small">
+        <li>Government sites NEVER ask for Telegram/WhatsApp login</li>
+        <li>Real GST Voucher claims go through Singpass, not SMS codes</li>
+        <li>Check the URL - official sites end in .gov.sg</li>
+        <li>When in doubt, go directly to https://redeem.gov.sg/</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
