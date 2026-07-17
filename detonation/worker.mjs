@@ -99,8 +99,11 @@ async function onePass({ proxy, active }) {
   }
 }
 
+// Pass 1: datacenter view (no proxy, passive) → the decoy a scanner would see.
 const scanner = await onePass({ proxy: null, active: false });
-const sg = PROXY ? await onePass({ proxy: PROXY, active: ACTIVE }) : scanner;
+// Pass 2: the REAL page from the SG residential exit (or no-proxy locally),
+// where active fill + harvest capture run.
+const sg = await onePass({ proxy: PROXY, active: ACTIVE });
 
 const cloakDetected =
   !!PROXY && (scanner.title !== sg.title || Math.abs(scanner.bodyLen - sg.bodyLen) > 40);

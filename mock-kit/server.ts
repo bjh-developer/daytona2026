@@ -1,5 +1,7 @@
-// Mock phishing kit — DEMO ONLY. A team-built Telegram-login clone that CLOAKS:
-// serves a harmless decoy to scanners/non-SG, the real fake page to SG visitors.
+// Mock phishing kit — DEMO ONLY. Two-step, cloaked:
+//   /        gov GST-payout lure (the front door)  → CTA to /verify
+//   /verify  Telegram-login trap (phone→OTP→2FA)   → harvest + worm stub; screenshot target
+// Serves a harmless decoy to scanners/non-SG; the real pages only to SG visitors.
 // Never real criminal infrastructure; nothing is ever exfiltrated.
 import express from "express";
 
@@ -22,6 +24,49 @@ function servesReal(req: express.Request): boolean {
 const DECOY = `<!doctype html><html><head><meta charset="utf-8"><title>Page not available</title>
 <style>body{font-family:system-ui;display:grid;place-items:center;height:100vh;margin:0;color:#666;background:#fafafa}</style></head>
 <body><div><h1 style="font-weight:400">404</h1><p>This page is not available.</p></div></body></html>`;
+
+// Step 1 — gov GST-payout lure (from the fake-phishing-site design; inlined, no CDN).
+// Education intentionally lives in the bot verdict, NOT on the page, so the
+// screenshot reads as a real trap.
+const GOV_LURE = `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>GST Voucher — Claim Your Benefits</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:'Inter',system-ui,-apple-system,Roboto,sans-serif;margin:0;color:#1a1a1a;background:#fff}
+  .demo{background:#fff3cd;border-bottom:1px solid #ffc107;padding:8px 12px;font-size:12px;text-align:center}
+  .masthead{background:#f0f0f0;padding:6px 0;font-size:12px;color:#5b5b5b}
+  .gov{background:#1a1a1a;color:#fff;padding:10px 20px;font-size:12px}
+  .gov b{letter-spacing:.3px}
+  .wrap{max-width:600px;margin:32px auto;padding:0 20px}
+  h1{font-size:26px;margin:0 0 6px}
+  .muted{color:#707579;font-size:14px;margin:0 0 24px}
+  label{display:block;font-size:13px;font-weight:600;margin:16px 0 4px}
+  input{width:100%;padding:12px 14px;border:1px solid #dadce0;border-radius:8px;font-size:16px}
+  input:focus{outline:none;border-color:#c00}
+  .pref{display:flex}.pref span{padding:12px 12px;border:1px solid #dadce0;border-right:0;border-radius:8px 0 0 8px;background:#f7f7f7}
+  .pref input{border-radius:0 8px 8px 0}
+  .tgnote{margin:22px 0;padding:14px 16px;border:1px solid #d8eefb;background:#f2f9ff;border-radius:10px;font-size:14px}
+  .tgnote b{color:#2AABEE}
+  button{margin-top:24px;width:100%;padding:14px;background:#c00;color:#fff;border:0;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer}
+  a.btn{display:block;text-align:center;text-decoration:none}
+</style></head>
+<body>
+  <div class="demo">⚠️ DEMO ONLY — controlled phishing replica for detonate.sg. Not a real government site.</div>
+  <div class="gov">🦁 <b>A Singapore Government Agency Website</b></div>
+  <div class="masthead">Government payouts · GST Voucher Scheme 2026</div>
+  <div class="wrap">
+    <h1>GST Voucher Claim</h1>
+    <p class="muted">You are eligible for up to <b>$850</b> in cash. Verify your identity to receive your payout by 7 August 2026.</p>
+    <form action="/verify" method="get">
+      <label for="nric">NRIC / FIN</label>
+      <input id="nric" name="nric" placeholder="e.g. S1234567A" autocomplete="off">
+      <label for="phone">Mobile number</label>
+      <div class="pref"><span>+65</span><input id="phone" name="phone" type="tel" placeholder="9123 4567" autocomplete="off"></div>
+      <div class="tgnote">🔒 For security, the final step verifies your identity through <b>Telegram</b>.</div>
+      <button type="submit">Verify &amp; Claim Voucher</button>
+    </form>
+  </div>
+</body></html>`;
 
 const REAL = `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Telegram</title>
@@ -75,7 +120,8 @@ const REAL = `<!doctype html><html lang="en"><head><meta charset="utf-8">
   </script>
 </body></html>`;
 
-app.get("/", (req, res) => res.type("html").send(servesReal(req) ? REAL : DECOY));
+app.get("/", (req, res) => res.type("html").send(servesReal(req) ? GOV_LURE : DECOY));
+app.get("/verify", (req, res) => res.type("html").send(servesReal(req) ? REAL : DECOY));
 
 // Harvest sink — logs only, exfiltrates nothing.
 app.post("/api/harvest", (req, res) => {
@@ -83,4 +129,8 @@ app.post("/api/harvest", (req, res) => {
   res.json({ ok: true });
 });
 
-app.listen(PORT, () => console.log(`mock-kit on http://localhost:${PORT} (real page; ?force=decoy for scanner view)`));
+app.listen(PORT, () =>
+  console.log(
+    `mock-kit on http://localhost:${PORT}  ( / gov lure → /verify Telegram trap; ?force=decoy for scanner view )`,
+  ),
+);

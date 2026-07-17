@@ -6,7 +6,7 @@ import { config } from "../lib/config.ts";
 const SAMPLE =
   "🎉 GST Voucher 2026! Eligible Singaporeans can claim up to $850 cash. " +
   "Verify your identity via Telegram to receive your payout: " +
-  `${config.mockKitUrl}/claim`;
+  `${config.mockKitUrl}/verify`;
 
 const result = await runCheck(SAMPLE, (e) => console.log(`  … ${e.label}`));
 
