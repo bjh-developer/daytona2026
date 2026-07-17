@@ -6,7 +6,7 @@ screenshots the real phishing page that scanners never see, and replies in-chat 
 what it impersonates ([Nosana](https://nosana.io) vision), the literal text it asks for
 ([Doubleword](https://doubleword.ai) OCR), and a plain-English verdict ([ai&](https://aiand.com)).
 
-**It doesn't score a link — it shows you the trap.** See [docs/](docs/) for the full plan.
+**It doesn't score a link — it shows you the trap.** See [docs/plan.md](docs/plan.md) for the full plan.
 
 ## Quick start (works today, no sponsor keys needed)
 
