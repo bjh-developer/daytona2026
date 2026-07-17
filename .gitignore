@@ -36,3 +36,6 @@ logs/
 tmp/
 temp/
 *.tmp
+
+# AI
+.claude
