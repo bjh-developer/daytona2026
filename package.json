@@ -1,9 +1,30 @@
 {
-    "name": "daytona2026",
-    "version": "1.0.0",
-    "scripts": {
-      "start-work": "bash start-work.sh",
-      "stop-work": "bash stop-work.sh"
-    }
+  "name": "detonate-sg",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Forward a Telegram scam message to a bot; it detonates the link in an isolated sandbox and replies with proof.",
+  "scripts": {
+    "bot": "tsx watch bot/index.ts",
+    "mock-kit": "tsx mock-kit/server.ts",
+    "worker": "tsx detonation/worker.ts",
+    "smoke": "tsx scripts/smoke.ts",
+    "typecheck": "tsc --noEmit",
+    "start-work": "bash start-work.sh",
+    "stop-work": "bash stop-work.sh"
+  },
+  "dependencies": {
+    "@daytonaio/sdk": "^0.20.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "grammy": "^1.30.0",
+    "openai": "^4.68.0",
+    "playwright": "^1.50.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
   }
-  
+}
