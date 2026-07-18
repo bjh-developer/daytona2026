@@ -54,9 +54,20 @@ const ctas = new InlineKeyboard()
   .row()
   .url("🔒 How to enable Telegram 2FA", "https://telegram.org/blog/sessions-and-2-step-verification");
 
-bot.on("message:text", async (ctx) => {
-  const text = ctx.message.text;
+// Handle both plain text AND captions — forwarded scams are often an image
+// with the link in the caption (which fires message:caption, not message:text).
+bot.on(["message:text", "message:caption"], async (ctx) => {
+  const text = ctx.message.text ?? ctx.message.caption ?? "";
   if (text.startsWith("/")) return;
+  // Links in forwards are often hidden hyperlinks (text_link entities) where the
+  // visible text isn't the URL — pull those out so extraction can see them.
+  const entities = ctx.message.entities ?? ctx.message.caption_entities ?? [];
+  const hiddenUrls = entities.flatMap((e) => (e.type === "text_link" && "url" in e && e.url ? [e.url] : []));
+  const scanText = hiddenUrls.length ? `${text} ${hiddenUrls.join(" ")}` : text;
+  if (!scanText.trim()) {
+    await ctx.reply("Forward me a message (or paste one) that contains a link, and I'll detonate it.");
+    return;
+  }
 
   const status = await ctx.reply("🧨 Detonating… <i>reading the message…</i>", { parse_mode: "HTML" });
   const edit = (label: string) =>
@@ -66,7 +77,7 @@ bot.on("message:text", async (ctx) => {
 
   try {
     await ctx.replyWithChatAction("upload_photo");
-    const result = await runCheck(text, async (e) => {
+    const result = await runCheck(scanText, async (e) => {
       await edit(e.label);
     });
 
