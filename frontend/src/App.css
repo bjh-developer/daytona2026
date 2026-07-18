@@ -16,7 +16,13 @@
     outline-offset: 2px;
   }
 }
-
+.hero-image {
+  max-width: 100%;    /* Ensures it never breaks out of the screen/container */
+  height: 400px;       /* Keeps the image proportional */
+  width: 600px;       /* Sets a fixed maximum width (change to what you need) */
+  display: block;     /* Removes weird spacing under images */
+  margin: 0 auto;     /* Centers the image horizontally */
+}
 .hero {
   position: relative;
 

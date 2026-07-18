@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import '../src/index.css'
-
+import '../public/singaporean.png'
 function GovernmentPage() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -41,6 +41,7 @@ function GovernmentPage() {
           <p className="muted">
             You are eligible for up to <b>$850</b> in cash. Verify your identity to receive your payout by 7 August 2026.
           </p>
+          <img src='../public/singaporean.png' className = "hero-image" />
 
           <form onSubmit={handleSubmit}>
             <div className="sgds-form-group">

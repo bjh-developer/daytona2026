@@ -74,19 +74,31 @@ bot.on("message:text", async (ctx) => {
     });
 
     const d = result.detonation;
-    const media = [];
-    if (d.decoyScreenshotBase64) {
-      media.push({
-        type: "photo" as const,
-        media: new InputFile(Buffer.from(d.decoyScreenshotBase64, "base64"), "scanner.png"),
-        caption: "🌐 What a scanner (ScamShield) sees — a harmless decoy",
-      });
-    }
-    media.push({
+    const photo = (b64: string, name: string, caption: string) => ({
       type: "photo" as const,
-      media: new InputFile(Buffer.from(d.screenshotBase64, "base64"), "trap.png"),
-      caption: "🇸🇬 What you'd see from Singapore — the real trap",
+      media: new InputFile(Buffer.from(b64, "base64"), name),
+      caption,
     });
+
+    // Show the ACTUAL scam pages (the real trap a Singapore visitor sees), each
+    // captioned with why it's a scam. The decoy/cloak evasion point stays in the
+    // verdict text below.
+    const brand = result.vision?.brand && !/^(none|unknown)$/i.test(result.vision.brand) ? result.vision.brand : "Telegram";
+    const steals = result.verdict.harvestedFields.length
+      ? result.verdict.harvestedFields.join(", ")
+      : "your login details";
+    const stages = d.funnelScreenshots?.length ? d.funnelScreenshots : [d.screenshotBase64];
+    const captionFor = (i: number, n: number): string => {
+      const last = i === n - 1;
+      if (n === 1) {
+        return `🚩 The scam page — a fake ${brand} login. It asks for ${steals}. A real ${brand} login never asks for the code it texts you.`;
+      }
+      if (last) {
+        return `🚩 Step ${i + 1}: the trap — a fake ${brand} login that steals ${steals}. Real ${brand} never asks for the code it texts you.`;
+      }
+      return `🎣 Step ${i + 1}: the bait — a fake claim page that funnels you to the login trap.`;
+    };
+    const media = stages.map((shot, i) => photo(shot, `scam${i + 1}.png`, captionFor(i, stages.length)));
     if (media.length >= 2) await ctx.replyWithMediaGroup(media);
     else await ctx.replyWithPhoto(media[0].media, { caption: media[0].caption });
 
