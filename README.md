@@ -39,25 +39,27 @@ The catch: these pages **cloak**. They detect scanners (datacenter IPs) and serv
 
 ---
 
-## 📱 What you get back
+## 📱 See it in action
 
-Forward the bot a scam message, and ~10 seconds later it replies with:
+Forward the bot a scam message, and ~10 seconds later it replies with a full evidence report — the plain-English verdict, what the page harvests, the behavioural analysis, the cloak, the worm, and the Daytona sandbox it ran in:
 
-```
-🚩 Telegram impersonation — 100% scam
+<div align="center">
 
-🎣 Step 1: the bait  ......... [screenshot: fake GST Voucher gov claim]
-🚩 Step 2: the trap  ......... [screenshot: fake Telegram login]
-💀 Step 3: the result ........ [screenshot: "you got scammed"]
+<img src="docs/demo-verdict.png" alt="Bot verdict reply" width="480">
 
-🔍 This page harvests: NRIC · Phone · Login code (OTP) · 2FA password
-📄 It literally says: "Enter the code we sent to your phone"
-🕵️ Showed a harmless decoy to the scanner, the real trap to a Singapore visitor
-🪱 Once in, it messages your whole contact list — that's how it spreads
-🧨 Isolated in Daytona sandbox a1b2c3d4
+</div>
 
-[🚨 Report to ScamShield]  [🔒 Enable Telegram 2FA]
-```
+…followed by the **actual scam pages it walked through**, captured live — bait → trap → result:
+
+<div align="center">
+
+<img src="docs/demo-step1-bait.png" alt="Step 1: fake GST Voucher claim" width="270">
+<img src="docs/demo-step2-trap.png" alt="Step 2: fake Telegram login" width="270">
+<img src="docs/demo-step3-result.png" alt="Step 3: you got scammed" width="270">
+
+**🎣 The bait** — fake GST Voucher claim &nbsp;·&nbsp; **🚩 The trap** — fake Telegram login &nbsp;·&nbsp; **💀 The result** — account stolen
+
+</div>
 
 Send it a **legitimate** login (e.g. `github.com/login`) and it correctly replies **✅ Looks legitimate** — because the domain belongs to the brand.
 
