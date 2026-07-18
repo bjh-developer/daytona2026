@@ -1,0 +1,536 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, Roboto, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #1a1a1a;
+  background: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Roboto, sans-serif;
+  color: #1a1a1a;
+  background: #f5f5f5;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.gov-page {
+  font-family: 'Inter', system-ui, -apple-system, Roboto, sans-serif;
+  margin: 0;
+  color: #1a1a1a;
+  background: #f5f5f5;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Demo Banner */
+.gov-page .demo {
+  background: #fff3cd;
+  border-bottom: 1px solid #ffc107;
+  padding: 8px 12px;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Header */
+.gov-header {
+  background: linear-gradient(to right, #003d82, #004a94);
+  color: #ffffff;
+  padding: 16px 20px;
+}
+
+.gov-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gov-logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gov-logo {
+  font-size: 24px;
+}
+
+.gov-title {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.gov-ministry {
+  font-size: 12px;
+  color: #e0e0e0;
+}
+
+/* Breadcrumb */
+.gov-breadcrumb {
+  background: #e8e8e8;
+  padding: 8px 20px;
+  font-size: 11px;
+  color: #666;
+  max-width: 100%;
+}
+
+/* Main Content */
+.gov-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.gov-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.gov-card h1 {
+  font-size: 28px;
+  margin: 0 0 12px;
+  color: #1a1a1a;
+}
+
+.gov-card .muted {
+  color: #666;
+  font-size: 14px;
+  margin: 0 0 28px;
+  line-height: 1.6;
+}
+
+/* Form */
+.sgds-form-group {
+  margin-bottom: 20px;
+}
+
+.sgds-form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1a1a1a;
+}
+
+.sgds-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.sgds-input:focus {
+  outline: none;
+  border-color: #1e88e5;
+  box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+}
+
+/* Prefix input */
+.pref {
+  display: flex;
+  gap: 0;
+}
+
+.sgds-prefix {
+  padding: 12px 14px;
+  border: 1px solid #dadce0;
+  border-right: 0;
+  border-radius: 4px 0 0 4px;
+  background: #f7f7f7;
+  font-weight: 500;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.pref .sgds-input {
+  border-radius: 0 4px 4px 0;
+  flex: 1;
+}
+
+/* Note Box */
+.tgnote {
+  margin: 24px 0;
+  padding: 14px 16px;
+  border: 1px solid #e3f2fd;
+  background: #f5f9ff;
+  border-radius: 6px;
+  font-size: 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tgnote-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.sgds-link {
+  color: #1e88e5;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.sgds-link:hover {
+  text-decoration: underline;
+}
+
+/* Button */
+.sgds-button {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 8px;
+}
+
+.sgds-button.is-primary {
+  background: #1e5fa8;
+  color: #ffffff;
+}
+
+.sgds-button.is-primary:hover {
+  background: #164a7f;
+}
+
+/* Footer */
+.gov-footer {
+  background: #f0f0f0;
+  border-top: 1px solid #d0d0d0;
+  padding: 32px 20px 24px;
+  margin-top: auto;
+}
+
+.gov-footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.gov-footer-logos {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-size: 28px;
+}
+
+.footer-logo {
+  display: inline-block;
+}
+
+.gov-footer-links {
+  font-size: 12px;
+}
+
+.gov-footer-links a {
+  color: #1e5fa8;
+  text-decoration: none;
+  margin: 0 6px;
+}
+
+.gov-footer-links a:hover {
+  text-decoration: underline;
+}
+
+.separator {
+  color: #999;
+  margin: 0 6px;
+}
+
+.gov-footer-copyright {
+  font-size: 11px;
+  color: #666;
+  margin-top: 8px;
+}
+
+.telegram-page {
+  font-family: system-ui, -apple-system, Roboto, sans-serif;
+  background: #ffffff;
+  margin: 0;
+  color: #111111;
+}
+
+.telegram-page .demo {
+  background: #fff3cd;
+  border-bottom: 1px solid #ffc107;
+  padding: 8px 12px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.telegram-page .wrap {
+  max-width: 360px;
+  margin: 48px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.telegram-page .logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--tg, #2aabee);
+  margin: 0 auto 24px;
+  display: grid;
+  place-items: center;
+}
+
+.telegram-page .logo svg {
+  width: 70px;
+  height: 70px;
+  fill: #ffffff;
+}
+
+.telegram-page h1 {
+  font-size: 24px;
+  margin: 0 0 8px;
+  color: #111111;
+}
+
+.telegram-page p.sub {
+  color: #707579;
+  font-size: 15px;
+  margin: 0 0 28px;
+}
+
+.telegram-page label {
+  display: block;
+  text-align: left;
+  font-size: 13px;
+  color: var(--tg, #2aabee);
+  margin: 16px 0 4px;
+}
+
+.telegram-page input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dadce0;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.telegram-page input:focus {
+  outline: none;
+  border-color: var(--tg, #2aabee);
+}
+
+/* Meme Scam Page */
+.meme-scam-page {
+  min-height: 100vh;
+  background: #1a1a1a;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.meme-container {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.meme-position {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(var(--rotation, 0deg));
+  opacity: 0.85;
+}
+
+.meme-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Position each meme */
+.meme-position.top-left {
+  top: 8%;
+  left: 3%;
+  --rotation: -15deg;
+}
+
+.meme-position.top-center {
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%) rotate(-8deg);
+}
+
+.meme-position.top-right {
+  top: 10%;
+  right: 3%;
+  --rotation: 12deg;
+}
+
+.meme-position.left-top {
+  left: 2%;
+  top: 30%;
+  --rotation: 8deg;
+}
+
+.meme-position.right-top {
+  right: 2%;
+  top: 35%;
+  --rotation: -10deg;
+}
+
+.meme-position.left-bottom {
+  left: 3%;
+  bottom: 10%;
+  --rotation: -12deg;
+}
+
+.meme-position.right-bottom {
+  right: 3%;
+  bottom: 8%;
+  --rotation: 15deg;
+}
+
+.meme-position.bottom-left {
+  bottom: 5%;
+  left: 8%;
+  --rotation: 10deg;
+}
+
+.meme-position.bottom-center {
+  bottom: 3%;
+  left: 50%;
+  transform: translateX(-50%) rotate(-6deg);
+}
+
+.meme-position.bottom-right {
+  bottom: 8%;
+  right: 6%;
+  --rotation: -14deg;
+}
+
+.scammed-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.scammed-note {
+  font-size: 84px;
+  font-weight: 900;
+  color: #ff3333;
+  text-align: center;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  transform: rotate(-5deg) skewY(-1deg);
+  text-shadow: 
+    4px 4px 0px rgba(255, 100, 100, 0.6),
+    -2px -2px 0px rgba(255, 200, 200, 0.3),
+    3px 3px 15px rgba(0, 0, 0, 0.8);
+  letter-spacing: 3px;
+  line-height: 1.2;
+  text-transform: lowercase;
+  animation: bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.3s forwards;
+  opacity: 0;
+}
+
+@keyframes bounce {
+  0% {
+    transform: rotate(-5deg) skewY(-1deg) scale(0.3);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(-5deg) skewY(-1deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.meme-footer {
+  text-align: center;
+  padding: 20px;
+  position: relative;
+  z-index: 50;
+}
+
+.meme-footer a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.meme-footer a:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.telegram-page button {
+  margin-top: 24px;
+  width: 100%;
+  padding: 13px;
+  background: var(--tg, #2aabee);
+  color: #ffffff;
+  border: 0;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+}
+
+.telegram-page .hint {
+  font-size: 12px;
+  color: #707579;
+  margin-top: 6px;
+  text-align: left;
+}
