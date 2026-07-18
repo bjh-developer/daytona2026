@@ -11,9 +11,9 @@ export interface ProxyConfig {
  * Username format: customer-USER-cc-SG[-sessid-<id>] pins the exit country
  * and (with sessid) holds one IP across a multi-step load.
  */
-export function sgProxy(sessionId?: string): ProxyConfig {
+export function sgProxy(sessionId?: string, countryOverride?: string): ProxyConfig {
   const { user, pass, host, port, country } = config.oxylabs;
-  let username = `customer-${user}-cc-${country}`;
+  let username = `customer-${user}-cc-${countryOverride || country}`;
   if (sessionId) username += `-sessid-${sessionId}-sesstime-10`;
   return { server: `http://${host}:${port}`, username, password: pass };
 }

@@ -15,16 +15,21 @@ function parseWorkerOutput(stdout: string): DetonationResult {
 
 /** Env the worker needs for a two-pass (scanner + SG) detonation. */
 function workerEnv(url: string, active: boolean): Record<string, string> {
-  const p = sgProxy(`det${Date.now()}`);
-  // A remote SG proxy can never route to our own loopback — skip it for
-  // localhost targets (dev convenience), never silently swallow it otherwise.
+  const seed = `det${Date.now()}`;
+  const sg = sgProxy(seed); // SG residential exit → the real page
+  const scanner = sgProxy(seed + "s", config.oxylabs.scannerCountry); // non-SG → decoy
+  // A remote proxy can never route to our own loopback — skip proxies for
+  // localhost targets (dev convenience), never silently swallow them otherwise.
   const isLocalTarget = /^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/i.test(url);
   const useProxy = !!config.oxylabs.user && !isLocalTarget;
   return {
     TARGET_URL: url,
-    PROXY_SERVER: useProxy ? p.server : "",
-    PROXY_USER: p.username,
-    PROXY_PASS: p.password,
+    PROXY_SERVER: useProxy ? sg.server : "",
+    PROXY_USER: sg.username,
+    PROXY_PASS: sg.password,
+    SCANNER_PROXY_SERVER: useProxy ? scanner.server : "",
+    SCANNER_PROXY_USER: scanner.username,
+    SCANNER_PROXY_PASS: scanner.password,
     ACTIVE_FILL: active ? "1" : "0",
   };
 }

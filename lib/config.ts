@@ -20,6 +20,9 @@ export const config = {
     host: process.env.OXYLABS_HOST || "pr.oxylabs.io",
     port: Number(process.env.OXYLABS_PORT || 7777),
     country: process.env.OXYLABS_COUNTRY || "SG",
+    // Non-SG exit for the scanner pass, so the "datacenter view" is foreign
+    // even when the detonation runs from within Singapore.
+    scannerCountry: process.env.OXYLABS_SCANNER_COUNTRY || "US",
   },
   aiand: {
     apiKey: process.env.AIAND_API_KEY || "",
