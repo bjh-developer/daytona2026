@@ -1,27 +1,65 @@
 # Nosana Fine-Tuning Knowledge Document
 
 > Status: **Decision record** — captures the reasoning behind what to train Nosana on,
-> what *not* to train it on, and the architecture that makes the VLM one signal of many.
-> Last updated: 2026-07-18.
+> what *not* to train it on, and the architecture that makes the agent transcript the
+> primary detection signal, with the VLM demoted to optional context. Last updated: 2026-07-18.
 
 ---
 
 ## 1. What Nosana is in this project
 
-Nosana is the **GPU host**, not the model. It runs vLLM serving
-`Qwen/Qwen2.5-VL-7B-Instruct` (a vision-language model) behind an OpenAI-compatible
-endpoint. "Fine-tuning Nosana" really means: fine-tune the model weights, then
-redeploy the tuned model on the Nosana vLLM instance.
+Nosana is the **GPU host**, not the model. It runs vLLM behind an OpenAI-compatible
+endpoint. Per §5.3 and §8 (the recommended architecture), Nosana's primary job is
+**transcript-based scam analysis** — a text LLM reasons over the agent's behavioral
+transcript and returns a scam verdict. The VLM (screenshot brand classification) is
+demoted to optional context (signal #7) and is no longer the detection path.
 
-- Inference client: `lib/nosana.ts` (`classifyBrand()`)
-- Inference contract: `VisionResult` in `lib/types.ts`
-- Fallback chain: Nosana → ai& `kimi-k2.6` vision → `mockVision()`
+"Fine-tuning Nosana" really means: fine-tune the model weights, then redeploy the tuned
+model on the Nosana vLLM instance.
+
+- **Primary inference client:** `lib/scam-classifier.ts` (`classifyScam()`) — text model
+  (`config.nosana.textModel`, default `qwen2.5-7b-instruct`) over the agent transcript.
+  Inference contract: `ScamVerdict` in `lib/types.ts`.
+- **Optional context client:** `lib/nosana.ts` (`classifyBrand()`) — VLM
+  (`config.nosana.model`, default `qwen2.5-vl`) over the screenshot. Inference contract:
+  `VisionResult` in `lib/types.ts`. Signal #7 only — never the sole basis for a verdict.
+- **Fallback chain (transcript path):** Nosana text → ai& text (`deepseek-v4-flash`) →
+  `templateScamVerdict()` (deterministic, zero-AI floor).
+- **Fallback chain (vision path):** Nosana VLM → ai& vision (`kimi-k2.6`) → `mockVision()`.
 
 ---
 
 ## 2. Current prompts and what is being set
 
-### 2.1 Nosana vision prompt (`lib/nosana.ts`)
+### 2.0 Nosana transcript prompt (`lib/scam-classifier.ts`) — PRIMARY detection path
+
+This is signal #6 (§5, §8) — the evasion-proof scam verdict from the agent's behavioral
+transcript. Nosana's text model reasons over the transcript and returns a decision +
+reasoning. This is what Nosana is primarily for.
+
+System:
+```
+You are a scam analyst. Analyze the agent transcript of a page visit.
+Every piece of evidence is something a scam kit MUST do to steal credentials.
+Respond ONLY with JSON: {"is_scam":boolean,"brand_impersonated":string,"evidence":string[],"confidence":number,"explanation":string}.
+```
+
+User payload: the rendered transcript (observed state → actions → captured POSTs → context),
+exactly as specified in §5.1.
+
+**Input:** the `AgentTranscript` (text — a11y tree, actions, captured POST body, domain context).
+**Output:** `ScamVerdict` `{is_scam, brand_impersonated, evidence[], confidence, explanation}`
+parsed by `parseVerdict()`.
+**What is being set:** `response_format: { type: "json_object" }`, `max_tokens: 400`,
+model `config.nosana.textModel` (default `qwen2.5-7b-instruct`). Few-shot examples are
+loaded from `scripts/fixtures/corpus/few-shot.jsonl` when present (§7 in-context learning).
+
+### 2.1 Nosana vision prompt (`lib/nosana.ts`) — OPTIONAL context (signal #7)
+
+> **Demoted.** Per §5.3 and §8, the VLM is context/corroboration only — never the sole
+> basis for a verdict. A kit using the real logo is pixel-identical to the real site
+> (§3), so this path cannot detect scams. Kept only to populate the "looks like X" line
+> in the victim-facing reply when the transcript's `claimed_brand` context is absent.
 
 ```
 You are a phishing brand classifier. Look at this webpage screenshot.
@@ -32,7 +70,8 @@ is_login_form = true if it asks for login credentials/codes.
 
 **Input:** a single base64 PNG screenshot (the SG-residential pass — the "real trap").
 **Output:** `{brand, is_login_form, confidence}` parsed by `parseVision()`.
-**What is being set:** `response_format: { type: "json_object" }`, `max_tokens: 200`.
+**What is being set:** `response_format: { type: "json_object" }`, `max_tokens: 200`,
+model `config.nosana.model` (default `qwen2.5-vl`).
 
 ### 2.2 ai& verdict prompt (`lib/aiand.ts`)
 
@@ -379,12 +418,15 @@ examples to the prompt instead (minutes, no training, no GPU).
 
 ## 9. Summary (one paragraph)
 
-Nosana hosts the VLM; fine-tuning targets the model weights, not Nosana itself. The
-current prompts (`lib/nosana.ts`, `lib/aiand.ts`, `lib/doubleword.ts`) set JSON-mode
-responses with brand/login/confidence schemas. Do NOT fine-tune the VLM to detect scams —
-a kit using the real logo is pixel-identical to the real site, so no model separates them.
-Fine-tune (if at all) on **brand recognition** from screenshots (for SG brands the base
-model doesn't know) OR, better, on **agent transcripts** where the signals are behavioral
-and unfakeable (harvest POST, field combo, non-legit domain, cloak). The screenshot stays
-for the victim-facing Telegram reply only. The scam verdict comes from the domain check,
-harvest capture, cloak detection, and spread signals — none of which depend on pixels.
+Nosana is the GPU host; fine-tuning targets the model weights, not Nosana itself. Per §5.3
+and §8, Nosana's **primary** job is transcript-based scam analysis: a text LLM
+(`config.nosana.textModel`) reasons over the agent's behavioral transcript and returns a
+`ScamVerdict` (decision + reasoning). The VLM screenshot path (`classifyBrand()`) is
+demoted to optional context (signal #7) — a kit using the real logo is pixel-identical to
+the real site, so no vision model separates them. Do NOT fine-tune the VLM to detect
+scams. Fine-tune (if at all) on **agent transcripts** (§6.3, recommended) where the
+signals are behavioral and unfakeable (harvest POST, field combo, non-legit domain,
+cloak), or on **brand recognition** from screenshots (§6.2, optional, for SG brands the
+base model doesn't know). The screenshot stays for the victim-facing Telegram reply only.
+The scam verdict comes from the transcript LLM plus the deterministic signals (domain,
+harvest, cloak, spread) — none of which depend on pixels.
