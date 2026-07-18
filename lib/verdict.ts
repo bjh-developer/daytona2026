@@ -1,4 +1,4 @@
-import type { DetonationResult, OcrResult, VisionResult, Verdict } from "./types.ts";
+import type { AgentTranscript, DetonationResult, OcrResult, ScamVerdict, VisionResult, Verdict } from "./types.ts";
 
 const FIELD_LABELS: Record<string, string> = {
   phone: "Phone number",
@@ -54,3 +54,59 @@ export function templateVerdict(
     source: "template-fallback",
   };
 }
+
+/**
+ * Deterministic scam verdict from the agent transcript (docs/nosana-finetuning.md §5).
+ * The zero-AI floor for signal #6 — uses the behavioral signals the kit cannot fake:
+ * harvest POST, credential field combo, non-legit domain, cloak. Mirrors the
+ * `templateVerdict` pattern: always correct on the mock kit with no sponsor keys.
+ */
+export function templateScamVerdict(
+  transcript: AgentTranscript,
+  det?: DetonationResult,
+): ScamVerdict {
+  const evidence: string[] = [];
+  const ctx = transcript.context;
+  const steps = transcript.steps;
+
+  // Signal: harvest POST captured.
+  const postStep = steps.find((s) => s.kind === "observed_after" && /Captured POST/i.test(s.label));
+  if (postStep) evidence.push(`POSTs credentials to ${postStep.label.replace(/^Captured POST:\s*/i, "")}`);
+
+  // Signal: credential field combo (phone + OTP + 2FA).
+  const fills = steps.filter((s) => s.kind === "action" && /fill/i.test(s.label));
+  const fillLabels = fills.map((f) => f.label.toLowerCase());
+  const hasPhone = fillLabels.some((l) => /phone|mobile|number/.test(l));
+  const hasCode = fillLabels.some((l) => /code|otp/.test(l));
+  const has2fa = fillLabels.some((l) => /2fa|password|cloud/.test(l));
+  if (hasPhone && hasCode) evidence.push("asks for phone + login code together");
+  if (has2fa) evidence.push("also asks for the 2FA password");
+
+  // Signal: non-legit domain.
+  if (ctx.real_brand_domain && ctx.domain && !ctx.domain.endsWith(ctx.real_brand_domain.replace(/^www\./, ""))) {
+    evidence.push(`hosted on ${ctx.domain}, not the real ${ctx.real_brand_domain}`);
+  } else if (ctx.domain) {
+    evidence.push(`hosted on ${ctx.domain}`);
+  }
+
+  // Signal: cloak detected (from the detonation, if provided).
+  if (det?.cloakDetected) evidence.push("serves a decoy to scanners but the real trap to SG visitors");
+
+  // Signal: spread markers in the page.
+  if (det?.spreadSignals?.length) evidence.push(`contains worm code (${det.spreadSignals.slice(0, 3).join(", ")})`);
+
+  const isScam = evidence.length >= 2 || (!!postStep && (hasPhone || hasCode));
+  const brand = ctx.claimed_brand || "Unknown";
+
+  return {
+    is_scam: isScam,
+    brand_impersonated: brand,
+    evidence: evidence.length ? evidence : ["no behavioral scam signals observed"],
+    confidence: isScam ? 0.9 : 0.4,
+    explanation: isScam
+      ? `The agent's behavior on this page matches a ${brand} credential-harvesting scam: ${evidence.join("; ")}.`
+      : `The agent did not observe strong scam signals on this page.`,
+    source: "heuristic",
+  };
+}
+

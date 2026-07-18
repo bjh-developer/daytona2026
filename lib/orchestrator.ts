@@ -2,6 +2,7 @@ import { config } from "./config.ts";
 import { extractUrl, provisionalVerdict } from "./extract.ts";
 import { detonate, daytonaShowcase } from "./daytona.ts";
 import { classifyBrand } from "./nosana.ts";
+import { classifyScam } from "./scam-classifier.ts";
 import { ocrScreenshot } from "./doubleword.ts";
 import { generateVerdict } from "./aiand.ts";
 import type { CheckResult, ProgressFn } from "./types.ts";
@@ -10,8 +11,9 @@ export class NoUrlError extends Error {}
 
 /**
  * Full pipeline for a forwarded message: extract → detonate (2-pass, isolated) →
- * vision + OCR (parallel) → verdict. Emits progress so the bot can edit its status.
- * Active fill (Level 2) is enabled ONLY when the target is our own mock kit.
+ * vision + OCR + transcript analysis (parallel) → verdict. Emits progress so the
+ * bot can edit its status. Active fill (Level 2) is enabled ONLY when the target
+ * is our own mock kit.
  */
 export async function runCheck(text: string, onProgress: ProgressFn = () => {}): Promise<CheckResult> {
   await onProgress({ step: "extracting", label: "Reading the message…" });
@@ -33,14 +35,19 @@ export async function runCheck(text: string, onProgress: ProgressFn = () => {}):
   const [detonation, daytona] = await Promise.all([detonate(url, isOwnMockKit), daytonaPromise]);
 
   await onProgress({ step: "vision", label: "Identifying what it impersonates…" });
-  const [vision, ocr] = await Promise.all([
+  // Signal #6 (transcript analysis) runs in parallel with vision + OCR. The
+  // transcript is the evasion-proof input — behavioral signals a kit can't fake.
+  const [vision, ocr, scamClassification] = await Promise.all([
     classifyBrand(detonation.screenshotBase64),
     ocrScreenshot(detonation.screenshotBase64).catch(() => undefined),
+    detonation.agentTranscript
+      ? classifyScam(detonation.agentTranscript, detonation).catch(() => undefined)
+      : Promise.resolve(undefined),
   ]);
 
   await onProgress({ step: "verdict", label: "Writing the verdict…" });
-  const verdict = await generateVerdict(detonation, vision, ocr);
+  const verdict = await generateVerdict(detonation, vision, ocr, scamClassification);
 
   await onProgress({ step: "done", label: "Done." });
-  return { url, detonation, vision, ocr, verdict, provisional, daytona };
+  return { url, detonation, vision, ocr, verdict, scamClassification, provisional, daytona };
 }

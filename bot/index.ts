@@ -33,6 +33,15 @@ function verdictMessage(r: CheckResult): string {
   if (r.ocr?.evidenceLines?.length) {
     lines.push("", `📄 <b>It literally says:</b>`, ...r.ocr.evidenceLines.map((l) => `   “${esc(l)}”`));
   }
+  if (r.scamClassification) {
+    const sc = r.scamClassification;
+    const emoji = sc.is_scam ? "🤖" : "✅";
+    const top = sc.evidence[0] ? ` — ${esc(sc.evidence[0])}` : "";
+    lines.push(
+      "",
+      `${emoji} <b>Behavioral check (${Math.round(sc.confidence * 100)}%):</b> ${esc(sc.explanation)}${top}`,
+    );
+  }
   if (r.detonation.cloakDetected) {
     lines.push("", `🕵️ <i>It showed a harmless decoy to the scanner but the real trap to a Singapore visitor — that's why link-checkers miss it.</i>`);
   }

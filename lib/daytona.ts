@@ -31,6 +31,16 @@ function workerEnv(url: string, active: boolean): Record<string, string> {
     SCANNER_PROXY_USER: scanner.username,
     SCANNER_PROXY_PASS: scanner.password,
     ACTIVE_FILL: active ? "1" : "0",
+    // Agent behavioral transcript (docs/nosana-finetuning.md §5). On by default —
+    // the transcript is the evasion-proof input to the scam classifier. Observe-only
+    // on non-mock targets (ACTIVE_FILL=0); the agent still records what it sees.
+    CAPTURE_TRANSCRIPT: config.agent.captureTranscript ? "1" : "0",
+    // LLM-driven agent loop. Defaults to ai&; the worker falls back to the
+    // deterministic fill loop when the key is absent (mock-kit-only active fill).
+    AGENT_LLM_BASE_URL: config.agent.llmBaseUrl,
+    AGENT_LLM_API_KEY: config.agent.llmApiKey,
+    AGENT_LLM_MODEL: config.agent.llmModel,
+    AGENT_MAX_STEPS: String(config.agent.maxSteps),
   };
 }
 
