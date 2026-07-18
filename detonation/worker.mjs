@@ -68,6 +68,11 @@ async function onePass({ proxy, active }) {
     const hay = (html + " " + bodyText).toLowerCase();
     const spreadSignals = SPREAD_TERMS.filter((t) => hay.includes(t));
 
+    // Screenshot the page NOW, before any active fill — submitting can navigate
+    // the app away (e.g. an SPA route to a "you got scammed" page), and the
+    // vision model must see the login/impersonation page, not what comes after.
+    const screenshotBase64 = (await page.screenshot({ fullPage: true })).toString("base64");
+
     let capturedHarvestPayload;
     if (active && fields.length) {
       try {
@@ -91,7 +96,7 @@ async function onePass({ proxy, active }) {
       redirectChain,
       title,
       bodyLen: bodyText.length,
-      screenshotBase64: (await page.screenshot({ fullPage: true })).toString("base64"),
+      screenshotBase64,
       fields,
       ajaxEndpoints: [...ajaxEndpoints],
       spreadSignals,
