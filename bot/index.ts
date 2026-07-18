@@ -23,14 +23,10 @@ function esc(s: string): string {
 
 function verdictMessage(r: CheckResult): string {
   const v = r.verdict;
-  const lines = [
-    `<b>${esc(v.headline)}</b>`,
-    "",
-    esc(v.explanation),
-    "",
-    `🔍 <b>This page harvests:</b>`,
-    ...v.harvestedFields.map((f) => `   • ${esc(f)}`),
-  ];
+  const lines = [`<b>${esc(v.headline)}</b>`, "", esc(v.explanation)];
+  if (v.harvestedFields.length) {
+    lines.push("", `🔍 <b>This page harvests:</b>`, ...v.harvestedFields.map((f) => `   • ${esc(f)}`));
+  }
   if (r.vision?.is_login_form) {
     lines.push("", `👁️ Vision: <b>${esc(r.vision.brand)} login impersonation ${Math.round(r.vision.confidence * 100)}%</b>`);
   }
