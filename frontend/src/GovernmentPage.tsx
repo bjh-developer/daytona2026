@@ -76,11 +76,11 @@ function GovernmentPage() {
               <span>For security, the final step verifies your identity through <a href="#" className="sgds-link">Telegram</a>.</span>
             </div>
             
-            <button type="submit" className="sgds-button is-primary">Verify &amp; Claim Voucher</button>
+            
           </form>
 
           <p style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-            <Link to="/verify" className="sgds-link">Go to fake Telegram page</Link>
+            <Link to="/verify" className="sgds-button is-primary">Verify & Claim Voucher</Link>
           </p>
         </div>
       </div>
