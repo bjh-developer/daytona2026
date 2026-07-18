@@ -320,9 +320,20 @@ async function onePass({ proxy, active }) {
       }
     });
 
-    const resp = await page.goto(TARGET, { waitUntil: "domcontentloaded", timeout: 45000 });
-    // SPA: wait for something interactive to actually render (networkidle is
-    // flaky behind a slow residential proxy and was timing out → crashing).
+    // Residential-proxy exits are flaky — a dead exit makes goto ERR_TIMED_OUT.
+    // Retry a few times; a fresh attempt often lands on a working exit IP.
+    let resp = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        resp = await page.goto(TARGET, { waitUntil: "domcontentloaded", timeout: 30000 });
+        break;
+      } catch (err) {
+        if (attempt === 3) throw err;
+        process.stderr.write(`[worker] goto attempt ${attempt} failed (${err.message}); retrying…\n`);
+        await page.waitForTimeout(1500);
+      }
+    }
+    // SPA: wait for something interactive to actually render.
     await page.waitForSelector("input, form, button, h1", { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(1000);
 
@@ -408,13 +419,21 @@ async function onePass({ proxy, active }) {
 }
 
 // Pass 1: scanner view (non-SG exit, passive) → the decoy a scanner would see.
-const scanner = await onePass({ proxy: SCANNER_PROXY, active: false });
+// Non-fatal: if this exit is dead, we still verdict from the SG pass (no cloak).
+let scanner = null;
+try {
+  scanner = await onePass({ proxy: SCANNER_PROXY, active: false });
+} catch (err) {
+  process.stderr.write(`[worker] scanner pass failed (${err.message}); continuing without decoy/cloak\n`);
+}
 // Pass 2: the REAL funnel from the SG residential exit (active fill + harvest).
+// This one is load-bearing — let it throw if all retries fail.
 const sg = await onePass({ proxy: PROXY, active: ACTIVE });
 
 // Cloak = the two vantages rendered materially different landing pages. Only
-// meaningful when at least one pass used a proxy.
+// meaningful when the scanner pass succeeded and at least one pass used a proxy.
 const cloakDetected =
+  !!scanner &&
   (!!PROXY || !!SCANNER_PROXY) &&
   (scanner.title !== sg.title || Math.abs(scanner.bodyLen - sg.bodyLen) > 40);
 
@@ -425,14 +444,14 @@ const result = {
   finalUrl: meaningfulUrls[meaningfulUrls.length - 1] ?? sg.landingUrl,
   redirectChain: meaningfulUrls,
   screenshotBase64: sg.primaryScreenshotBase64,
-  decoyScreenshotBase64: scanner.landingScreenshotBase64,
+  decoyScreenshotBase64: scanner ? scanner.landingScreenshotBase64 : undefined,
   funnelScreenshots: sg.funnelScreenshots,
   cloakDetected,
   fields: sg.fields,
   ajaxEndpoints: sg.ajaxEndpoints,
   spreadSignals: sg.spreadSignals,
   capturedHarvestPayload: sg.capturedHarvestPayload,
-  timings: { scannerMs: scanner.ms, sgMs: sg.ms },
+  timings: { scannerMs: scanner ? scanner.ms : 0, sgMs: sg.ms },
 };
 
 // Attach the agent transcript (docs/nosana-finetuning.md §5). The transcript is
