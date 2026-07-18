@@ -65,18 +65,23 @@ bot.on("message:text", async (ctx) => {
     });
 
     const d = result.detonation;
+    const photo = (b64: string, name: string, caption: string) => ({
+      type: "photo" as const,
+      media: new InputFile(Buffer.from(b64, "base64"), name),
+      caption,
+    });
     const media = [];
     if (d.decoyScreenshotBase64) {
-      media.push({
-        type: "photo" as const,
-        media: new InputFile(Buffer.from(d.decoyScreenshotBase64, "base64"), "scanner.png"),
-        caption: "🌐 What a scanner (ScamShield) sees — a harmless decoy",
-      });
+      media.push(photo(d.decoyScreenshotBase64, "scanner.png", "🌐 What a scanner (ScamShield) sees — a harmless decoy"));
     }
-    media.push({
-      type: "photo" as const,
-      media: new InputFile(Buffer.from(d.screenshotBase64, "base64"), "trap.png"),
-      caption: "🇸🇬 What you'd see from Singapore — the real trap",
+    // Walk the funnel the trap actually leads a Singapore visitor through.
+    const stages = d.funnelScreenshots?.length ? d.funnelScreenshots : [d.screenshotBase64];
+    stages.forEach((shot, i) => {
+      const caption =
+        stages.length > 1
+          ? `🇸🇬 Real trap, step ${i + 1} of ${stages.length}${i === stages.length - 1 ? " — the credential-stealing page" : ""}`
+          : "🇸🇬 What you'd see from Singapore — the real trap";
+      media.push(photo(shot, `trap${i + 1}.png`, caption));
     });
     if (media.length >= 2) await ctx.replyWithMediaGroup(media);
     else await ctx.replyWithPhoto(media[0].media, { caption: media[0].caption });
