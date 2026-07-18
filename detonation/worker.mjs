@@ -13,6 +13,12 @@
 //   PROXY_USER, PROXY_PASS
 //   SCANNER_PROXY_* non-SG exit for the scanner (decoy) pass
 //   ACTIVE_FILL=1   MOCK KIT ONLY — type dummy values + capture the harvest POST
+//   CAPTURE_TRANSCRIPT=1  record an agent behavioral transcript (§5). Default on.
+//   AGENT_LLM_BASE_URL / AGENT_LLM_API_KEY / AGENT_LLM_MODEL
+//                          OpenAI-compatible endpoint driving the agent loop. When
+//                          absent, the worker falls back to the deterministic fill loop.
+//   AGENT_MAX_STEPS        step budget for the LLM agent (default 6).
+//   TRANSCRIPT_LOG_DIR     where to write transcript JSON logs (default logs/transcripts).
 //
 // Never set ACTIVE_FILL against a real link.
 
@@ -30,6 +36,13 @@ const SCANNER_PROXY = process.env.SCANNER_PROXY_SERVER
   ? { server: process.env.SCANNER_PROXY_SERVER, username: process.env.SCANNER_PROXY_USER, password: process.env.SCANNER_PROXY_PASS }
   : null;
 const ACTIVE = process.env.ACTIVE_FILL === "1";
+const CAPTURE_TRANSCRIPT = process.env.CAPTURE_TRANSCRIPT !== "0"; // default on
+const AGENT_LLM_BASE_URL = process.env.AGENT_LLM_BASE_URL || "";
+const AGENT_LLM_API_KEY = process.env.AGENT_LLM_API_KEY || "";
+const AGENT_LLM_MODEL = process.env.AGENT_LLM_MODEL || "";
+const AGENT_MAX_STEPS = Number(process.env.AGENT_MAX_STEPS || 6);
+const AGENT_ENABLED = !!(AGENT_LLM_BASE_URL && AGENT_LLM_API_KEY && AGENT_LLM_MODEL);
+const LOG_DIR = process.env.TRANSCRIPT_LOG_DIR || "logs/transcripts";
 
 const SPREAD_TERMS = ["contacts", "api_id", "api_hash", "forwardtocontacts", "contact_list"];
 const MAX_STEPS = 3;
@@ -79,25 +92,213 @@ const ADVANCE_SELECTORS = [
 ];
 
 /** Fill dummy values, submit, capture any harvest POST, follow the navigation. */
-async function fillAndAdvance(page, fields) {
+async function fillAndAdvance(page, fields, transcript) {
   const before = page.url();
   const postP = page.waitForRequest((r) => r.method() === "POST", { timeout: 4000 }).catch(() => null);
   for (const f of fields) {
     if (!f.name) continue;
-    await page.fill(`[name="${f.name}"]`, dummyValue(f)).catch(() => {});
+    const val = dummyValue(f);
+    await page.fill(`[name="${f.name}"]`, val).catch(() => {});
+    if (CAPTURE_TRANSCRIPT && transcript) {
+      transcript.push({
+        kind: "action",
+        label: `fill ${f.type === "password" ? "password" : "textbox"} "${f.label || f.placeholder || f.name}" with "${val}"`,
+      });
+    }
   }
   for (const sel of ADVANCE_SELECTORS) {
     const el = page.locator(sel).first();
     if ((await el.count().catch(() => 0)) && (await el.isVisible().catch(() => false))) {
       await el.click({ timeout: 3000 }).catch(() => {});
+      if (CAPTURE_TRANSCRIPT && transcript) transcript.push({ kind: "action", label: `click ${sel}` });
       break;
     }
   }
   const post = await postP;
-  // Let either a full navigation or an SPA route change (pushState) settle.
-  await page.waitForLoadState("networkidle", { timeout: 6000 }).catch(() => {});
+  // networkidle is unreliable behind a slow residential proxy — domcontentloaded
+  // + a short settle is enough and never hangs the budget.
+  await page.waitForLoadState("domcontentloaded", { timeout: 6000 }).catch(() => {});
   await page.waitForTimeout(800);
   return { harvest: post ? (post.postData() ?? undefined) : undefined, navigated: page.url() !== before };
+}
+
+const AGENT_SYSTEM =
+  "You are a browser agent that determines if a page is a credential-harvesting scam. " +
+  "You are given the page's accessibility tree, visible text, and the list of actions already taken. " +
+  "Decide the SINGLE next action to take. Respond ONLY with JSON: " +
+  '{"action":"fill"|"click"|"done","selector":"<css or aria-label>","value":"<dummy>","reason":"<short>"}.\n' +
+  "Rules:\n" +
+  "- Use dummy values only (e.g. S1234567A for NRIC, +6591234567 for phone, 000000 for codes, dummy2FA! for passwords). NEVER use real credentials.\n" +
+  "- Fill every visible credential field EXACTLY ONCE, then click the submit button.\n" +
+  "- DO NOT re-fill a field that is already in the 'Already done' list. Move to the next unfilled field.\n" +
+  "- Return {\"action\":\"done\"} once you've submitted the form or there is nothing more to interact with.\n" +
+  "- If the page is not a login/credential form, return {\"action\":\"done\"} immediately.\n" +
+  "- Prefer selectors by [name=\"...\"], then by aria-label, then by visible text.";
+
+/** Truncate the a11y snapshot to interactive elements (textbox/button/link/combobox). */
+function compactA11y(node, depth = 0, out = []) {
+  if (!node) return out;
+  const INTERACTIVE = new Set(["textbox", "button", "link", "combobox", "checkbox", "menuitem"]);
+  if (INTERACTIVE.has(node.role)) {
+    const label = node.name || node.value || "";
+    out.push(`${"  ".repeat(depth)}- ${node.role}${label ? ` "${label}"` : ""}`);
+  }
+  for (const c of node.children || []) compactA11y(c, depth + 1, out);
+  return out;
+}
+
+/** Ask the agent LLM for the next action. Returns {action, selector, value, reason} or null. */
+async function askAgentLlm(history) {
+  const res = await fetch(`${AGENT_LLM_BASE_URL.replace(/\/$/, "")}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${AGENT_LLM_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: AGENT_LLM_MODEL,
+      max_tokens: 200,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: AGENT_SYSTEM },
+        { role: "user", content: history },
+      ],
+    }),
+  });
+  if (!res.ok) throw new Error(`agent LLM ${res.status}: ${await res.text().catch(() => "")}`);
+  const data = await res.json();
+  const raw = data.choices?.[0]?.message?.content ?? "{}";
+  const json = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] ?? raw);
+  return {
+    action: String(json.action ?? "done"),
+    selector: json.selector ? String(json.selector) : undefined,
+    value: json.value != null ? String(json.value) : undefined,
+    reason: json.reason ? String(json.reason) : undefined,
+  };
+}
+
+/** Resolve an agent selector (css or aria-label string) to a Playwright locator. */
+function resolveSelector(page, selector) {
+  if (!selector) return null;
+  // [name="..."] or other CSS — use directly
+  if (/^[\[.#:a-zA-Z][\w\-="\[\]().#:>*~+ ]*$/.test(selector) && !selector.includes('" "')) {
+    return page.locator(selector).first();
+  }
+  // Otherwise treat as aria-label / visible text
+  return page.getByLabel(selector).or(page.getByRole("button", { name: selector })).first();
+}
+
+/**
+ * LLM-driven agent loop (docs/nosana-finetuning.md §5). Reads the a11y tree +
+ * visible text, asks the LLM for the next action, executes it, observes the
+ * result. Tracks filled selectors to prevent re-filling the same field.
+ * Safety: fill/click are IGNORED unless ACTIVE=1 (mock-kit-only). The agent
+ * still observes and reasons on non-mock targets — it just doesn't interact.
+ * Falls back to the deterministic fill loop when the LLM is not configured.
+ */
+async function agentLoop({ page, fields, bodyText, title, finalUrl, transcript }) {
+  // Build the interactive-elements list from the fields we already extracted.
+  // (Playwright 1.61 removed page.accessibility.snapshot(); fields[] is the
+  // same surface — input/textarea/select elements with name/type/label.)
+  const interactive = fields.map((f) => {
+    const role = f.type === "password" ? "password" : "textbox";
+    const label = f.label || f.placeholder || f.name;
+    return `  - ${role}${label ? ` "${label}"` : ""}`;
+  });
+  const obs =
+    `URL: ${finalUrl}\nTitle: "${title}"\n` +
+    `Visible text: ${bodyText.slice(0, 500)}\n` +
+    `Interactive elements:\n${interactive.length ? interactive.join("\n") : "  (none)"}`;
+
+  if (CAPTURE_TRANSCRIPT) {
+    transcript.push({ kind: "observed", label: `URL: ${finalUrl}`, detail: obs });
+  }
+
+  if (!AGENT_ENABLED) {
+    return { usedLlm: false };
+  }
+
+  const filledSelectors = new Set();
+  let history = `=== PAGE STATE ===\n${obs}\n\n=== TASK ===\nDecide the next action. Already done: (none).`;
+
+  for (let step = 0; step < AGENT_MAX_STEPS; step++) {
+    let action;
+    try {
+      action = await askAgentLlm(history);
+    } catch (err) {
+      if (CAPTURE_TRANSCRIPT) {
+        transcript.push({ kind: "action", label: `agent LLM error: ${err.message}` });
+      }
+      return { usedLlm: true, error: err.message };
+    }
+
+    if (action.action === "done") {
+      if (CAPTURE_TRANSCRIPT) {
+        transcript.push({ kind: "action", label: `done — ${action.reason || "no further action"}` });
+      }
+      return { usedLlm: true };
+    }
+
+    // SAFETY GATE: never interact with a non-mock target.
+    if (!ACTIVE && (action.action === "fill" || action.action === "click")) {
+      if (CAPTURE_TRANSCRIPT) {
+        transcript.push({
+          kind: "action",
+          label: `skipped ${action.action} (observe-only — not the mock kit)`,
+          detail: action.reason,
+        });
+      }
+      history += `\n\n=== STEP ${step + 1} ===\nRequested ${action.action} on "${action.selector}" but interaction is disabled (observe-only).`;
+      continue;
+    }
+
+    // Skip re-filling an already-filled selector (defensive — the LLM is told not to).
+    const selKey = action.selector || "";
+    if (action.action === "fill" && filledSelectors.has(selKey)) {
+      if (CAPTURE_TRANSCRIPT) {
+        transcript.push({ kind: "action", label: `skipped re-fill "${selKey}" (already filled)`, detail: action.reason });
+      }
+      history += `\n\n=== STEP ${step + 1} ===\nSkipped re-fill of "${selKey}" (already in 'Already done'). Choose a different field or click submit.`;
+      continue;
+    }
+
+    if (action.action === "fill" && action.selector && action.value != null) {
+      const loc = resolveSelector(page, action.selector);
+      if (loc) {
+        await loc.fill(action.value).catch(() => {});
+        filledSelectors.add(selKey);
+        if (CAPTURE_TRANSCRIPT) {
+          transcript.push({
+            kind: "action",
+            label: `fill "${action.selector}" with "${action.value}"`,
+            detail: action.reason,
+          });
+        }
+      }
+    } else if (action.action === "click" && action.selector) {
+      const loc = resolveSelector(page, action.selector);
+      if (loc) {
+        await loc.click().catch(() => {});
+        if (CAPTURE_TRANSCRIPT) {
+          transcript.push({ kind: "action", label: `click "${action.selector}"`, detail: action.reason });
+        }
+      }
+    } else {
+      if (CAPTURE_TRANSCRIPT) {
+        transcript.push({ kind: "action", label: `unknown action: ${JSON.stringify(action)}` });
+      }
+    }
+
+    // Observe after the action.
+    await page.waitForTimeout(300);
+    const afterText = (await page.evaluate(() => document.body?.innerText ?? "").catch(() => "")) || "";
+    if (CAPTURE_TRANSCRIPT && afterText && afterText !== bodyText) {
+      transcript.push({ kind: "observed_after", label: "Page text changed", detail: afterText.slice(0, 300) });
+    }
+    const doneList = [...filledSelectors].map((s) => `fill ${s}`).join(", ") || "(none)";
+    history += `\n\n=== STEP ${step + 1} ===\nTook: ${action.action} on "${action.selector}"${action.value != null ? ` with "${action.value}"` : ""}\nReason: ${action.reason || ""}\nAlready done: ${doneList}`;
+  }
+  return { usedLlm: true };
 }
 
 async function onePass({ proxy, active }) {
@@ -119,17 +320,53 @@ async function onePass({ proxy, active }) {
       }
     });
 
-    const resp = await page.goto(TARGET, { waitUntil: "networkidle", timeout: 30000 });
+    const resp = await page.goto(TARGET, { waitUntil: "domcontentloaded", timeout: 45000 });
+    // SPA: wait for something interactive to actually render (networkidle is
+    // flaky behind a slow residential proxy and was timing out → crashing).
+    await page.waitForSelector("input, form, button, h1", { timeout: 15000 }).catch(() => {});
+    await page.waitForTimeout(1000);
 
+    // HYBRID: walk the phishing funnel (gov claim → fake login), and at each
+    // stage run the agent (observe + behavioral transcript for the Nosana
+    // fine-tuning corpus §5; LLM-driven fills when AGENT_LLM_* is configured).
     const stages = [];
+    const transcript = [];
     let capturedHarvestPayload;
     for (let i = 0; i < MAX_STEPS; i++) {
       const stage = await captureStage(page);
       stages.push(stage);
       if (!active || !stage.fields.length) break;
-      const { harvest, navigated } = await fillAndAdvance(page, stage.fields);
-      if (harvest && !capturedHarvestPayload) capturedHarvestPayload = harvest;
-      if (!navigated) break;
+
+      const before = page.url();
+      const bodyText = (await page.evaluate(() => document.body?.innerText ?? "").catch(() => "")) || "";
+      // Agent observes + reasons over this stage (records transcript; LLM fills
+      // when configured). Safe on non-mock targets — it only interacts when ACTIVE.
+      const agentResult = await agentLoop({
+        page,
+        fields: stage.fields,
+        bodyText,
+        title: stage.title,
+        finalUrl: stage.url,
+        transcript,
+      });
+
+      // If the agent didn't already navigate, deterministically fill + click the
+      // funnel's advance control (kits often use an <a> link, not a submit button).
+      let harvest;
+      let navigated = page.url() !== before;
+      if (!navigated) {
+        const r = await fillAndAdvance(page, stage.fields, transcript);
+        harvest = r.harvest;
+        navigated = r.navigated;
+      }
+      if (harvest && !capturedHarvestPayload) {
+        capturedHarvestPayload = harvest;
+        if (CAPTURE_TRANSCRIPT) {
+          transcript.push({ kind: "observed_after", label: "Captured harvest POST", detail: `body: ${harvest}` });
+        }
+      }
+      if (!navigated) break; // couldn't advance → funnel ended
+      await page.waitForSelector("input, form, h1, button", { timeout: 8000 }).catch(() => {});
     }
 
     // Merge evidence across all stages.
@@ -161,6 +398,7 @@ async function onePass({ proxy, active }) {
       ajaxEndpoints: [...ajaxEndpoints],
       spreadSignals,
       capturedHarvestPayload,
+      transcript,
       status: resp?.status() ?? 0,
       ms: Date.now() - t0,
     };
@@ -196,5 +434,56 @@ const result = {
   capturedHarvestPayload: sg.capturedHarvestPayload,
   timings: { scannerMs: scanner.ms, sgMs: sg.ms },
 };
+
+// Attach the agent transcript (docs/nosana-finetuning.md §5). The transcript is
+// the evasion-proof input to the scam classifier — behavioral signals a kit
+// can't fake (harvest POST, field combo, non-legit domain).
+if (CAPTURE_TRANSCRIPT && sg.transcript?.length) {
+  let domain = "";
+  try { domain = new URL(sg.finalUrl).hostname; } catch { /* leave empty */ }
+  result.agentTranscript = {
+    goal: "Determine if this page is a credential-harvesting scam.",
+    steps: sg.transcript,
+    context: {
+      domain,
+      // claimed_brand / real_brand_domain / brand_note are filled by the
+      // classifier or capture script at ingest time — the worker only sees
+      // the rendered page.
+    },
+  };
+}
+
+// Persist the transcript (and full result) to logs/transcripts/ for inspection.
+// One timestamped JSON file per run. Set TRANSCRIPT_LOG_DIR="" to disable.
+if (result.agentTranscript && LOG_DIR) {
+  try {
+    const { mkdirSync, writeFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const dir = resolve(LOG_DIR);
+    mkdirSync(dir, { recursive: true });
+    const ts = new Date().toISOString().replace(/[:.]/g, "-");
+    const safeDomain = (result.agentTranscript.context.domain || "unknown").replace(/[^a-z0-9.-]/gi, "_");
+    const fname = `${ts}_${safeDomain}.json`;
+    writeFileSync(
+      resolve(dir, fname),
+      JSON.stringify(
+        {
+          capturedAt: new Date().toISOString(),
+          targetUrl: TARGET,
+          finalUrl: result.finalUrl,
+          activeFill: ACTIVE,
+          agentLlmEnabled: AGENT_ENABLED,
+          agentLlmModel: AGENT_LLM_MODEL || null,
+          result,
+        },
+        null,
+        2,
+      ),
+    );
+    process.stderr.write(`[worker] transcript written to ${resolve(dir, fname)}\n`);
+  } catch (err) {
+    process.stderr.write(`[worker] failed to write transcript log: ${err.message}\n`);
+  }
+}
 
 process.stdout.write("\n__DETONATION_JSON__" + JSON.stringify(result) + "__END__\n");
