@@ -105,6 +105,14 @@ const scanner = await onePass({ proxy: null, active: false });
 // where active fill + harvest capture run.
 const sg = await onePass({ proxy: PROXY, active: ACTIVE });
 
+// A broken/unreachable proxy can make the "real" pass silently load a blank
+// or error page instead of throwing — never let that pass as a legit "cloak
+// detected", it's a proxy failure, not evidence.
+if (PROXY && sg.status !== 200 && sg.status !== 0) {
+  console.error(`SG pass returned unexpected status ${sg.status} — proxy likely broken/unreachable, not a real cloak signal`);
+  process.exit(1);
+}
+
 const cloakDetected =
   !!PROXY && (scanner.title !== sg.title || Math.abs(scanner.bodyLen - sg.bodyLen) > 40);
 

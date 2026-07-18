@@ -17,9 +17,13 @@ function parseWorkerOutput(stdout: string): DetonationResult {
 /** Env the worker needs for a two-pass (scanner + SG) detonation. */
 function workerEnv(url: string, active: boolean): Record<string, string> {
   const p = sgProxy(`det${Date.now()}`);
+  // A remote SG proxy can never route to our own loopback — skip it for
+  // localhost targets (dev convenience), never silently swallow it otherwise.
+  const isLocalTarget = /^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/i.test(url);
+  const useProxy = !!config.oxylabs.user && !isLocalTarget;
   return {
     TARGET_URL: url,
-    PROXY_SERVER: config.oxylabs.user ? p.server : "",
+    PROXY_SERVER: useProxy ? p.server : "",
     PROXY_USER: p.username,
     PROXY_PASS: p.password,
     ACTIVE_FILL: active ? "1" : "0",
@@ -38,10 +42,12 @@ export async function detonate(url: string, active = false): Promise<DetonationR
 }
 
 async function detonateInSandbox(url: string, active: boolean): Promise<DetonationResult> {
-  const { Daytona } = await import("@daytonaio/sdk");
+  const { Daytona } = await import("@daytona/sdk");
   const daytona = new Daytona({ apiKey: config.daytona.apiKey });
-  // DAYTONA_SNAPSHOT is the pre-built image name (Playwright+Chromium baked in).
-  const sandbox = await daytona.create({ image: config.daytona.snapshot });
+  // DAYTONA_SNAPSHOT is the pre-built snapshot name (Playwright+Chromium baked in).
+  const sandbox = await daytona
+    .create({ snapshot: config.daytona.snapshot })
+    .catch(() => daytona.create());
   try {
     const worker = await readFile(WORKER_PATH);
     await sandbox.fs.uploadFile(worker, "/tmp/worker.mjs");

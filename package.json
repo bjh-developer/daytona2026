@@ -14,7 +14,7 @@
     "stop-work": "bash stop-work.sh"
   },
   "dependencies": {
-    "@daytonaio/sdk": "^0.20.0",
+    "@daytona/sdk": "^0.199.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "grammy": "^1.30.0",

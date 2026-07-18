@@ -15,9 +15,9 @@ console.log("\n[1] Daytona egress (top risk)");
 if (!config.daytona.apiKey) skip("DAYTONA_API_KEY unset");
 else {
   try {
-    const { Daytona } = await import("@daytonaio/sdk");
+    const { Daytona } = await import("@daytona/sdk");
     const daytona = new Daytona({ apiKey: config.daytona.apiKey });
-    const s = await daytona.create({ image: config.daytona.snapshot }).catch(() => daytona.create());
+    const s = await daytona.create({ snapshot: config.daytona.snapshot }).catch(() => daytona.create());
     const r = await s.process.executeCommand(
       'curl -s -o /dev/null -w "%{http_code}" --max-time 8 https://api.ipify.org || echo BLOCKED',
     );
@@ -38,7 +38,7 @@ console.log("   " + (config.oxylabs.user ? smokeCurl() : "(set OXYLABS_USER/PASS
 // 3/4/5. OpenAI-compatible endpoints — one tiny call each.
 async function pingChat(name: string, baseURL: string, apiKey: string, model: string, vision = false) {
   console.log(`\n[${name}]`);
-  if (!apiKey || (name === "Nosana" && !baseURL)) return skip(`${name} not configured`);
+  if (!apiKey || !baseURL) return skip(`${name} not configured`);
   try {
     const client = new OpenAI({ baseURL, apiKey });
     const content = vision
