@@ -1,5 +1,8 @@
 // First-30-min GATE smoke tests. Run each once keys are in .env: npm run smoke
 // Exits non-zero if a configured sponsor fails, so it doubles as a checklist.
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import OpenAI from "openai";
 import { config } from "../lib/config.ts";
 import { smokeCurl } from "../lib/oxylabs.ts";
@@ -7,6 +10,11 @@ import { smokeCurl } from "../lib/oxylabs.ts";
 const ok = (m: string) => console.log(`  ✅ ${m}`);
 const bad = (m: string) => console.log(`  ❌ ${m}`);
 const skip = (m: string) => console.log(`  ⏭️  ${m}`);
+
+/** 128x128 PNG — Ollama/Gemma reject the old 1x1 smoke pixel. */
+const VISION_FIXTURE = `data:image/png;base64,${readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "fixtures/smoke-vision.png"),
+).toString("base64")}`;
 
 let failures = 0;
 
@@ -44,7 +52,7 @@ async function pingChat(name: string, baseURL: string, apiKey: string, model: st
     const content = vision
       ? [
           { type: "text" as const, text: "Reply OK" },
-          { type: "image_url" as const, image_url: { url: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" } },
+          { type: "image_url" as const, image_url: { url: VISION_FIXTURE } },
         ]
       : "Reply with the word OK";
     const res = await client.chat.completions.create({ model, max_tokens: 10, messages: [{ role: "user", content }] });
