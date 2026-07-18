@@ -309,6 +309,11 @@ async function onePass({ proxy, active }) {
       userAgent:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
     });
+    // Block web fonts — render-blocking and slow over a residential proxy, but
+    // irrelevant to the screenshots (system font falls back). Keeps images/CSS.
+    await context.route("**/*", (route) =>
+      route.request().resourceType() === "font" ? route.abort() : route.continue(),
+    );
     const page = await context.newPage();
 
     const ajaxEndpoints = new Set();
@@ -325,7 +330,7 @@ async function onePass({ proxy, active }) {
     let resp = null;
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        resp = await page.goto(TARGET, { waitUntil: "domcontentloaded", timeout: 30000 });
+        resp = await page.goto(TARGET, { waitUntil: "domcontentloaded", timeout: 20000 });
         break;
       } catch (err) {
         if (attempt === 3) throw err;
@@ -334,7 +339,7 @@ async function onePass({ proxy, active }) {
       }
     }
     // SPA: wait for something interactive to actually render.
-    await page.waitForSelector("input, form, button, h1", { timeout: 8000 }).catch(() => {});
+    await page.waitForSelector("input, form, button, h1, img", { timeout: 8000 }).catch(() => {});
     await page.waitForTimeout(700);
 
     // HYBRID: walk the phishing funnel (gov claim → fake login), and at each
@@ -377,7 +382,7 @@ async function onePass({ proxy, active }) {
         }
       }
       if (!navigated) break; // couldn't advance → funnel ended
-      await page.waitForSelector("input, form, h1, button", { timeout: 4000 }).catch(() => {});
+      await page.waitForSelector("input, form, h1, button, img", { timeout: 4000 }).catch(() => {});
     }
 
     // Merge evidence across all stages.
