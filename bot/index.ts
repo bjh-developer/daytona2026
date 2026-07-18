@@ -110,8 +110,17 @@ bot.on(["message:text", "message:caption"], async (ctx) => {
       return `💀 Step ${i + 1}: the result — after "submitting", this is what a victim sees. Their ${brand} account is now stolen.`;
     };
     const media = stages.map((shot, i) => photo(shot, `scam${i + 1}.png`, captionFor(i, stages.length)));
-    if (media.length >= 2) await ctx.replyWithMediaGroup(media);
-    else await ctx.replyWithPhoto(media[0].media, { caption: media[0].caption });
+    // Screenshots are best-effort — if Telegram rejects one (e.g. odd
+    // dimensions), fall back to documents, and never let it kill the verdict.
+    try {
+      if (media.length >= 2) await ctx.replyWithMediaGroup(media);
+      else await ctx.replyWithPhoto(media[0].media, { caption: media[0].caption });
+    } catch (imgErr) {
+      console.warn("[bot] photo send failed, retrying as documents:", (imgErr as Error).message);
+      for (const m of media) {
+        await ctx.replyWithDocument(m.media, { caption: m.caption }).catch(() => {});
+      }
+    }
 
     await ctx.api.editMessageText(ctx.chat.id, status.message_id, verdictMessage(result), {
       parse_mode: "HTML",

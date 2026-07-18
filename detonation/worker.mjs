@@ -71,7 +71,17 @@ async function captureStage(page) {
   const html = await page.content();
   const hay = (html + " " + bodyText).toLowerCase();
   const spreadSignals = SPREAD_TERMS.filter((t) => hay.includes(t));
-  const screenshotBase64 = (await page.screenshot({ fullPage: true })).toString("base64");
+  // Full-page screenshot, but Telegram rejects photos where width+height > 10000.
+  // Keep full quality for normal pages; only clip the ultra-tall ones (a long
+  // "you got scammed" page can be 1280×18000) down to the safe budget.
+  let shot = await page.screenshot({ fullPage: true });
+  const w = shot.readUInt32BE(16); // PNG width  (IHDR)
+  const h = shot.readUInt32BE(20); // PNG height (IHDR)
+  if (w + h > 9500) {
+    const clipH = Math.max(600, 9500 - w);
+    shot = await page.screenshot({ clip: { x: 0, y: 0, width: w, height: clipH } }).catch(() => shot);
+  }
+  const screenshotBase64 = shot.toString("base64");
   return { url, title, bodyLen: bodyText.length, fields, spreadSignals, screenshotBase64 };
 }
 
