@@ -16,8 +16,10 @@ export interface DetonationResult {
   screenshotBase64: string;
   /** Screenshot from the no-proxy datacenter pass (what a scanner sees). base64 PNG. */
   decoyScreenshotBase64?: string;
-  /** Each funnel stage the SG pass walked (e.g. [gov claim, Telegram login]). base64 PNGs. */
+  /** Each funnel stage the SG pass walked (e.g. [gov claim, Telegram login, "you got scammed"]). base64 PNGs. */
   funnelScreenshots?: string[];
+  /** Index into funnelScreenshots of the credential-harvest stage. Stages after it are the post-submit outcome. */
+  credentialStageIndex?: number;
   /** True when the two passes rendered materially different pages (cloak detected). */
   cloakDetected: boolean;
   fields: HarvestField[];

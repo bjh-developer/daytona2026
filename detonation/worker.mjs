@@ -400,9 +400,11 @@ async function onePass({ proxy, active }) {
       funnelUrls: stages.map((s) => s.url),
       title: stages[0]?.title ?? "",
       bodyLen: stages[0]?.bodyLen ?? 0,
-      // Show the funnel up to and including the credential stage (skip trailing
-      // dead-ends like a "you got scammed" page).
-      funnelScreenshots: stages.slice(0, Math.max(primaryIdx, 0) + 1).map((s) => s.screenshotBase64),
+      // Show EVERY stage the funnel walked — lure, credential trap, AND the
+      // post-submit outcome ("you got scammed") page. The verdict text is
+      // trimmed separately (see credentialStageIndex) so it doesn't over-narrate.
+      funnelScreenshots: stages.map((s) => s.screenshotBase64),
+      credentialStageIndex: primaryIdx,
       primaryScreenshotBase64: stages[primaryIdx]?.screenshotBase64 ?? stages[0]?.screenshotBase64 ?? "",
       landingScreenshotBase64: stages[0]?.screenshotBase64 ?? "",
       fields,
@@ -437,15 +439,17 @@ const cloakDetected =
   (!!PROXY || !!SCANNER_PROXY) &&
   (scanner.title !== sg.title || Math.abs(scanner.bodyLen - sg.bodyLen) > 40);
 
-// Only report the funnel up to the credential stage — trailing dead-ends
-// (e.g. a "you got scammed" reveal page) would make the verdict invent extra steps.
-const meaningfulUrls = sg.funnelUrls.slice(0, sg.funnelScreenshots.length);
+// The VERDICT only reasons over the funnel up to the credential stage — the
+// trailing "you got scammed" outcome page would make it invent extra steps.
+// (The bot still SHOWS the outcome screenshot via funnelScreenshots.)
+const meaningfulUrls = sg.funnelUrls.slice(0, (sg.credentialStageIndex ?? 0) + 1);
 const result = {
   finalUrl: meaningfulUrls[meaningfulUrls.length - 1] ?? sg.landingUrl,
   redirectChain: meaningfulUrls,
   screenshotBase64: sg.primaryScreenshotBase64,
   decoyScreenshotBase64: scanner ? scanner.landingScreenshotBase64 : undefined,
   funnelScreenshots: sg.funnelScreenshots,
+  credentialStageIndex: sg.credentialStageIndex ?? 0,
   cloakDetected,
   fields: sg.fields,
   ajaxEndpoints: sg.ajaxEndpoints,
