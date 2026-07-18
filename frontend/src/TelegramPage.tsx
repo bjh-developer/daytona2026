@@ -63,6 +63,22 @@ function TelegramPage() {
       <p style={{ marginTop: '1rem', textAlign: 'center' }}>
         <Link to="/meme">Go to meme scam page</Link>
       </p>
+
+      {/*
+        DEMO worm stub. Mirrors the real Telegram-takeover kit: once the stolen
+        code builds an authorized session, it reuses the api_id / api_hash to
+        blast the same phishing link to the victim's whole contact list. Rendered
+        (hidden) into the DOM so the detonation engine can surface it as evidence.
+        Does nothing real.
+      */}
+      <pre data-worm-stub hidden aria-hidden="true" style={{ display: 'none' }}>{`
+function forwardToContacts(session) {
+  const api_id = session.api_id;      // attacker-controlled
+  const api_hash = session.api_hash;  // attacker-controlled
+  const contacts = getContactList();  // whole address book
+  for (const contact of contacts) sendPhishingLink(contact, api_id, api_hash);
+}
+`}</pre>
     </section>
   )
 }

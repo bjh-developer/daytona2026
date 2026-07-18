@@ -20,6 +20,11 @@ if (!TARGET) {
 const PROXY = process.env.PROXY_SERVER
   ? { server: process.env.PROXY_SERVER, username: process.env.PROXY_USER, password: process.env.PROXY_PASS }
   : null;
+// Scanner pass proxy — a NON-SG exit so the "datacenter/scanner" view is foreign
+// even when the detonation runs from within Singapore. Falls back to no proxy.
+const SCANNER_PROXY = process.env.SCANNER_PROXY_SERVER
+  ? { server: process.env.SCANNER_PROXY_SERVER, username: process.env.SCANNER_PROXY_USER, password: process.env.SCANNER_PROXY_PASS }
+  : null;
 const ACTIVE = process.env.ACTIVE_FILL === "1";
 
 const SPREAD_TERMS = ["contacts", "api_id", "api_hash", "forwardtocontacts", "contact_list"];
@@ -99,14 +104,17 @@ async function onePass({ proxy, active }) {
   }
 }
 
-// Pass 1: datacenter view (no proxy, passive) → the decoy a scanner would see.
-const scanner = await onePass({ proxy: null, active: false });
+// Pass 1: scanner view (non-SG exit, passive) → the decoy a scanner would see.
+const scanner = await onePass({ proxy: SCANNER_PROXY, active: false });
 // Pass 2: the REAL page from the SG residential exit (or no-proxy locally),
 // where active fill + harvest capture run.
 const sg = await onePass({ proxy: PROXY, active: ACTIVE });
 
+// Cloak = the two vantages rendered materially different pages. Only meaningful
+// when at least one pass used a proxy (two identical local passes never count).
 const cloakDetected =
-  !!PROXY && (scanner.title !== sg.title || Math.abs(scanner.bodyLen - sg.bodyLen) > 40);
+  (!!PROXY || !!SCANNER_PROXY) &&
+  (scanner.title !== sg.title || Math.abs(scanner.bodyLen - sg.bodyLen) > 40);
 
 const result = {
   finalUrl: sg.finalUrl,
