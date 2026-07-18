@@ -5,10 +5,14 @@ import { templateScamVerdict } from "./verdict.ts";
 import type { AgentTranscript, DetonationResult, ScamVerdict } from "./types.ts";
 
 const SYSTEM =
-  "You are a scam analyst. Analyze the agent transcript of a page visit. " +
-  "Every piece of evidence is something a scam kit MUST do to steal credentials. " +
+  "You are a phishing analyst. From the agent transcript of a page visit, decide whether the page is a credential-harvesting SCAM or a LEGITIMATE site.\n" +
+  "A login form is NOT by itself a scam — most real sites have one. The decisive test is DOMAIN vs BRAND:\n" +
+  "- LEGITIMATE (is_scam=false): the page is served on the brand's OWN official domain — e.g. a GitHub login on github.com, a Google sign-in on accounts.google.com, a bank login on the bank's real domain. Do NOT flag these even though they collect a password.\n" +
+  "- SCAM (is_scam=true): the page impersonates a brand but is hosted on a domain that does NOT belong to that brand (a lookalike like g1thub.com, or an unrelated/free host like a random *.vercel.app), OR it asks for credentials it has no business collecting (e.g. a 'government payout' page asking for your Telegram login code + 2FA password).\n" +
+  "Use your own knowledge of well-known brands' real domains. Weigh the Domain line in the CONTEXT heavily.\n" +
   "Respond ONLY with JSON: " +
-  '{"is_scam":boolean,"brand_impersonated":string,"evidence":string[],"confidence":number,"explanation":string}.';
+  '{"is_scam":boolean,"brand_impersonated":string,"evidence":string[],"confidence":number,"explanation":string}. ' +
+  "If legitimate, set brand_impersonated to the real brand and explain in `explanation` why the domain makes it trustworthy.";
 
 /** Render the transcript to the text the model reasons over (doc §5.1). */
 function renderTranscript(t: AgentTranscript): string {
@@ -26,7 +30,7 @@ function renderTranscript(t: AgentTranscript): string {
   lines.push(
     "",
     "=== TASK ===",
-    "Analyze this transcript. Is this a scam? Respond ONLY with JSON: " +
+    "Is this a phishing scam, or a legitimate site? Judge by DOMAIN vs BRAND: a login on the brand's real domain is legitimate (is_scam=false); a brand impersonation on a domain that isn't the brand's, or credentials collected out of context, is a scam. Respond ONLY with JSON: " +
       '{"is_scam":boolean,"brand_impersonated":string,"evidence":string[],"confidence":number,"explanation":string}.',
   );
   return lines.join("\n");

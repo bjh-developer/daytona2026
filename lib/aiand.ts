@@ -58,6 +58,26 @@ export async function generateVerdict(
   ocr?: OcrResult,
   scam?: ScamVerdict,
 ): Promise<Verdict> {
+  // Trust the behavioral classifier: a confident "not a scam" means the page is
+  // legitimate (e.g. a real GitHub login on github.com). Short-circuit to a clean
+  // verdict — don't let the scam-framed LLM prompt manufacture a false alarm.
+  if (scam && !scam.is_scam && scam.confidence >= 0.6) {
+    const brand =
+      scam.brand_impersonated && !/^(none|unknown)$/i.test(scam.brand_impersonated)
+        ? scam.brand_impersonated
+        : "this site";
+    return {
+      level: "clean",
+      headline: `✅ Looks legitimate — genuine ${brand}`,
+      explanation:
+        scam.explanation ||
+        `This appears to be the real ${brand} on its official domain, not a phishing clone. Always double-check the address bar, but nothing here looks like a scam.`,
+      harvestedFields: [],
+      wormLine: "",
+      source: "behavioral-classifier",
+    };
+  }
+
   if (config.useMocks || !config.aiand.apiKey) return templateVerdict(det, vision, ocr);
 
   try {

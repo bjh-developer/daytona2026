@@ -42,7 +42,7 @@ function verdictMessage(r: CheckResult): string {
   if (r.detonation.cloakDetected) {
     lines.push("", `🕵️ <i>It showed a harmless decoy to the scanner but the real trap to a Singapore visitor — that's why link-checkers miss it.</i>`);
   }
-  lines.push("", `🪱 ${esc(v.wormLine)}`);
+  if (v.wormLine) lines.push("", `🪱 ${esc(v.wormLine)}`);
   if (r.daytona.ok) {
     lines.push("", `🧨 <i>Isolated in Daytona sandbox ${esc(r.daytona.sandboxId.slice(0, 8))} — this hackathon's Tier 1 credits block the sandbox's live internet, so the page-fetch itself ran locally.</i>`);
   }
@@ -97,7 +97,14 @@ bot.on(["message:text", "message:caption"], async (ctx) => {
       : "your login details";
     const stages = d.funnelScreenshots?.length ? d.funnelScreenshots : [d.screenshotBase64];
     const credIdx = d.credentialStageIndex ?? stages.length - 1;
+    // Legit vs scam decides the whole framing (don't caption a real login "scam").
+    const isScam = result.scamClassification
+      ? result.scamClassification.is_scam
+      : result.verdict.level !== "clean";
     const captionFor = (i: number, n: number): string => {
+      if (!isScam) {
+        return `✅ The real ${brand} page, served on its official domain — legitimate, not a scam.`;
+      }
       if (n === 1) {
         return `🚩 The scam page — a fake ${brand} login. It asks for ${steals}. A real ${brand} login never asks for the code it texts you.`;
       }
@@ -124,7 +131,7 @@ bot.on(["message:text", "message:caption"], async (ctx) => {
 
     await ctx.api.editMessageText(ctx.chat.id, status.message_id, verdictMessage(result), {
       parse_mode: "HTML",
-      reply_markup: ctas,
+      reply_markup: isScam ? ctas : undefined,
       link_preview_options: { is_disabled: true },
     });
   } catch (err) {

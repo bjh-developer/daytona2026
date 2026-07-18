@@ -361,13 +361,13 @@ async function onePass({ proxy, active }) {
     for (let i = 0; i < MAX_STEPS; i++) {
       const stage = await captureStage(page);
       stages.push(stage);
-      if (!active || !stage.fields.length) break;
 
       const before = page.url();
       const bodyText = (await page.evaluate(() => document.body?.innerText ?? "").catch(() => "")) || "";
-      // Agent observes + reasons over this stage (records transcript; LLM fills
-      // when configured). Safe on non-mock targets — it only interacts when ACTIVE.
-      const agentResult = await agentLoop({
+      // ALWAYS observe (records the transcript + domain the classifier needs to
+      // judge legit-vs-scam). The agent's own safety gate blocks interaction on
+      // non-mock targets, so this is read-only there.
+      await agentLoop({
         page,
         fields: stage.fields,
         bodyText,
@@ -375,6 +375,9 @@ async function onePass({ proxy, active }) {
         finalUrl: stage.url,
         transcript,
       });
+
+      // Observe-only (real link) or nothing to fill → stop after observing.
+      if (!active || !stage.fields.length) break;
 
       // If the agent didn't already navigate, deterministically fill + click the
       // funnel's advance control (kits often use an <a> link, not a submit button).
