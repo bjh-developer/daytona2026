@@ -32,12 +32,22 @@ function workerEnv(url: string, active: boolean): Record<string, string> {
 
 /**
  * Detonate a URL: two passes (datacenter decoy + SG-residential real), isolated.
- * Priority: mock → Daytona sandbox → local child process (egress-blocked fallback).
- * `active` fills dummy values + captures the harvest POST — MOCK KIT ONLY.
+ * Priority: mock → Daytona sandbox → local child process.
+ * Auto-falls back to local if the sandbox errors (e.g. Tier 1/2 egress block) —
+ * no manual key-pulling needed at demo time. `active` fills dummy values +
+ * captures the harvest POST — MOCK KIT ONLY.
  */
 export async function detonate(url: string, active = false): Promise<DetonationResult> {
   if (config.useMocks) return mockDetonation(url);
-  if (config.daytona.apiKey) return detonateInSandbox(url, active);
+  if (config.daytona.apiKey) {
+    try {
+      return await detonateInSandbox(url, active);
+    } catch (err) {
+      console.warn(
+        `[daytona] sandbox detonation failed (${(err as Error).message}) — falling back to local Playwright`,
+      );
+    }
+  }
   return detonateLocally(url, active);
 }
 
