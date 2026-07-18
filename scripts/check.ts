@@ -20,6 +20,14 @@ console.log(
 );
 if (result.ocr) console.log("OCR evidence:", result.ocr.evidenceLines.join(" | "));
 console.log("Cloak detected:", result.detonation.cloakDetected);
+if (result.scamClassification) {
+  console.log(
+    `Scam classification: is_scam=${result.scamClassification.is_scam} ` +
+      `${result.scamClassification.brand_impersonated} ` +
+      `${Math.round(result.scamClassification.confidence * 100)}% (${result.scamClassification.source})`,
+  );
+  for (const e of result.scamClassification.evidence) console.log(`  • ${e}`);
+}
 console.log("Verdict source:", result.verdict.source);
 console.log(
   `Screenshots: real=${result.detonation.screenshotBase64.length}b64 ` +

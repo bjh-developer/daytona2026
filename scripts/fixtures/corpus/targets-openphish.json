@@ -1,0 +1,902 @@
+[
+  {
+    "id": "openphish-0000",
+    "url": "https://www.buyinstagramfollowers44.blogspot.com/?m=1",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Instagram",
+      "evidence": [
+        "hosted on www.buyinstagramfollowers44.blogspot.com, not the legitimate instagram.com",
+        "Instagram login pages on non-instagram.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Instagram on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0001",
+    "url": "https://www.facebook-help-es.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on www.facebook-help-es.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0002",
+    "url": "http://govindkh04.github.io/netflix-clone/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Netflix",
+      "evidence": [
+        "hosted on govindkh04.github.io, not the legitimate netflix.com",
+        "Netflix login pages on non-netflix.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Netflix on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0003",
+    "url": "https://facebook-help-es.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on facebook-help-es.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0004",
+    "url": "https://facebooklogin74.blogspot.com/?m=1",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on facebooklogin74.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0005",
+    "url": "https://sanjeetprasadverma.github.io/facebookClone",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on sanjeetprasadverma.github.io, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0006",
+    "url": "https://www.m-facebook-in.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on www.m-facebook-in.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0007",
+    "url": "https://sanjeetprasadverma.github.io/instagramClone",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Instagram",
+      "evidence": [
+        "hosted on sanjeetprasadverma.github.io, not the legitimate instagram.com",
+        "Instagram login pages on non-instagram.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Instagram on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0008",
+    "url": "https://server-guide--microsoftsignin.replit.app/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Microsoft",
+      "evidence": [
+        "hosted on server-guide--microsoftsignin.replit.app, not the legitimate login.microsoftonline.com",
+        "Microsoft login pages on non-Microsoft domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Microsoft on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0009",
+    "url": "https://sso-ledger-hardware-wallet.pages.dev/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Crypto Wallet",
+      "evidence": [
+        "hosted on sso-ledger-hardware-wallet.pages.dev, not the legitimate (varies by wallet)",
+        "Crypto wallet login/seed-phrase pages on non-official domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Crypto Wallet on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0010",
+    "url": "https://amount.coinbases.vip/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Crypto Wallet",
+      "evidence": [
+        "hosted on amount.coinbases.vip, not the legitimate (varies by wallet)",
+        "Crypto wallet login/seed-phrase pages on non-official domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Crypto Wallet on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0011",
+    "url": "http://trust-wallet-cloned-beige.vercel.app/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Crypto Wallet",
+      "evidence": [
+        "hosted on trust-wallet-cloned-beige.vercel.app, not the legitimate (varies by wallet)",
+        "Crypto wallet login/seed-phrase pages on non-official domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Crypto Wallet on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0012",
+    "url": "https://amjad098u-bit.github.io/netflix/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Netflix",
+      "evidence": [
+        "hosted on amjad098u-bit.github.io, not the legitimate netflix.com",
+        "Netflix login pages on non-netflix.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Netflix on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0013",
+    "url": "https://m-facebook-in.blogspot.com/?m=1",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on m-facebook-in.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0014",
+    "url": "https://microsoft.authorised-support.com/new-account/EOzAFbYj1bjLmgufSIlKJJR9Kpvsy5kc3UkY=3Ag==3XlpQQVxAXFVHbF9cVFpdbERaR1tsQ1JAQERcQVc=/6Xx5KG1mKRNjeU3rSnC8diFTM7R4V1de/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Microsoft",
+      "evidence": [
+        "hosted on microsoft.authorised-support.com, not the legitimate login.microsoftonline.com",
+        "Microsoft login pages on non-Microsoft domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Microsoft on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0015",
+    "url": "http://diegoduran09.github.io/Facebook",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on diegoduran09.github.io, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0016",
+    "url": "https://instagram1l.github.io/Instagram",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Instagram",
+      "evidence": [
+        "hosted on instagram1l.github.io, not the legitimate instagram.com",
+        "Instagram login pages on non-instagram.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Instagram on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0017",
+    "url": "http://gokhanbyk.github.io/Netflix-loginPage-clone",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Netflix",
+      "evidence": [
+        "hosted on gokhanbyk.github.io, not the legitimate netflix.com",
+        "Netflix login pages on non-netflix.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Netflix on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0018",
+    "url": "https://www.instagram-reset-password.vercel.app/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Instagram",
+      "evidence": [
+        "hosted on www.instagram-reset-password.vercel.app, not the legitimate instagram.com",
+        "Instagram login pages on non-instagram.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Instagram on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0019",
+    "url": "https://instagram-reset-password.vercel.app/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Instagram",
+      "evidence": [
+        "hosted on instagram-reset-password.vercel.app, not the legitimate instagram.com",
+        "Instagram login pages on non-instagram.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Instagram on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0020",
+    "url": "http://jihadislam-jr.github.io/instagram-homepage/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Instagram",
+      "evidence": [
+        "hosted on jihadislam-jr.github.io, not the legitimate instagram.com",
+        "Instagram login pages on non-instagram.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Instagram on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0021",
+    "url": "http://www.su-facebook.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on www.su-facebook.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0022",
+    "url": "https://ledger-live-login-us-app.pages.dev/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Crypto Wallet",
+      "evidence": [
+        "hosted on ledger-live-login-us-app.pages.dev, not the legitimate (varies by wallet)",
+        "Crypto wallet login/seed-phrase pages on non-official domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Crypto Wallet on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0023",
+    "url": "https://rupanshi07.github.io/ledger/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Crypto Wallet",
+      "evidence": [
+        "hosted on rupanshi07.github.io, not the legitimate (varies by wallet)",
+        "Crypto wallet login/seed-phrase pages on non-official domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Crypto Wallet on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0024",
+    "url": "https://ramcharan2703.github.io/netflix/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Netflix",
+      "evidence": [
+        "hosted on ramcharan2703.github.io, not the legitimate netflix.com",
+        "Netflix login pages on non-netflix.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Netflix on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0025",
+    "url": "https://truthpreye-afk.github.io/Paypal/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "PayPal",
+      "evidence": [
+        "hosted on truthpreye-afk.github.io, not the legitimate paypal.com",
+        "PayPal login pages on non-paypal.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating PayPal on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0026",
+    "url": "https://premium-vendour.github.io/facebook.com",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on premium-vendour.github.io, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0027",
+    "url": "https://www.brad-facebook.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on www.brad-facebook.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0028",
+    "url": "https://facebook-login0.blogspot.com/?m=1",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on facebook-login0.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0029",
+    "url": "https://facebook-bd-circle-king-group-0254648.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on facebook-bd-circle-king-group-0254648.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0030",
+    "url": "https://facebook-sex-video-xxx-xxnx.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on facebook-sex-video-xxx-xxnx.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0031",
+    "url": "https://my-facebook-account-log-in.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on my-facebook-account-log-in.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0032",
+    "url": "https://www.my-facebook-account.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on www.my-facebook-account.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0033",
+    "url": "https://ldgr-wallet-live-support.pages.dev/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Crypto Wallet",
+      "evidence": [
+        "hosted on ldgr-wallet-live-support.pages.dev, not the legitimate (varies by wallet)",
+        "Crypto wallet login/seed-phrase pages on non-official domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Crypto Wallet on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0034",
+    "url": "https://sakthii4.github.io/netflix-clone-project/signin.html",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Netflix",
+      "evidence": [
+        "hosted on sakthii4.github.io, not the legitimate netflix.com",
+        "Netflix login pages on non-netflix.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Netflix on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0035",
+    "url": "https://my-facebook-account.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on my-facebook-account.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0036",
+    "url": "https://premium-vendour.github.io/facebook.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on premium-vendour.github.io, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0037",
+    "url": "https://www.facebook-pt.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on www.facebook-pt.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0038",
+    "url": "http://buyinstagramfollowers44.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Instagram",
+      "evidence": [
+        "hosted on buyinstagramfollowers44.blogspot.com, not the legitimate instagram.com",
+        "Instagram login pages on non-instagram.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Instagram on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0039",
+    "url": "http://icloud-flnd.com/Hn4",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Apple",
+      "evidence": [
+        "hosted on icloud-flnd.com, not the legitimate appleid.apple.com",
+        "Apple ID pages on non-apple.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Apple on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0040",
+    "url": "https://ledger-live-es.pages.dev/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Crypto Wallet",
+      "evidence": [
+        "hosted on ledger-live-es.pages.dev, not the legitimate (varies by wallet)",
+        "Crypto wallet login/seed-phrase pages on non-official domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Crypto Wallet on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0041",
+    "url": "http://www.facebook-login-page.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on www.facebook-login-page.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0042",
+    "url": "https://myondigitialsilk.com/kjhgfcvhbj/sharepoint.html",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Microsoft",
+      "evidence": [
+        "hosted on myondigitialsilk.com, not the legitimate login.microsoftonline.com",
+        "Microsoft login pages on non-Microsoft domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Microsoft on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0043",
+    "url": "https://instagram-fwuk.onrender.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Instagram",
+      "evidence": [
+        "hosted on instagram-fwuk.onrender.com, not the legitimate instagram.com",
+        "Instagram login pages on non-instagram.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Instagram on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0044",
+    "url": "https://clon-facebook.vercel.app/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on clon-facebook.vercel.app, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0045",
+    "url": "https://king-miguel.github.io/netflix/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Netflix",
+      "evidence": [
+        "hosted on king-miguel.github.io, not the legitimate netflix.com",
+        "Netflix login pages on non-netflix.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Netflix on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0046",
+    "url": "https://10yogesh10.github.io/mynetflix-clone/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Netflix",
+      "evidence": [
+        "hosted on 10yogesh10.github.io, not the legitimate netflix.com",
+        "Netflix login pages on non-netflix.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Netflix on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0047",
+    "url": "https://epm.029.mytemp.website/paypal_de/auth/login.php",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "PayPal",
+      "evidence": [
+        "hosted on epm.029.mytemp.website, not the legitimate paypal.com",
+        "PayPal login pages on non-paypal.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating PayPal on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0048",
+    "url": "https://www.facebook-help-m.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on www.facebook-help-m.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "openphish-0049",
+    "url": "https://www.facebookloginuser.blogspot.com/",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Facebook",
+      "evidence": [
+        "hosted on www.facebookloginuser.blogspot.com, not the legitimate facebook.com",
+        "Facebook login pages on non-facebook.com domains are phishing.",
+        "listed in the OpenPhish community phishing feed"
+      ],
+      "confidence": 0.9,
+      "explanation": "This page is a confirmed phishing URL (OpenPhish feed) impersonating Facebook on a non-legitimate domain.",
+      "source": "ground-truth"
+    }
+  }
+]

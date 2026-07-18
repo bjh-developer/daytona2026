@@ -6,19 +6,33 @@ Hackathon: **3 builders, ~5 hours, nothing tested yet.** Product = a **Telegram 
 
 **Frontend = the Telegram bot itself (no separate website/app).** The scam arrives *in Telegram* as a forward from a hijacked friend; forcing the victim to copy the link into a website is the friction that kills adoption. Instead they **forward the message to `@detonate_bot`** and get the verdict back in the same chat. This also makes the demo stronger — you screen-share the exact surface where the scam lives.
 
-Five sponsors, each a distinct load-bearing job: **Daytona** = safe isolated execution of an untrusted link; **Oxylabs** = SG proxy beats the cloak; **Nosana** = brand-from-pixels (must ship); **ai&** = human explanation; **Doubleword** = OCR the trap (DeepSeek-OCR-2 reads the literal phishing text off the screenshot). Three inference sponsors, three different jobs on the same screenshot: Nosana *classifies* the brand, Doubleword *reads* the text, ai& *synthesizes* the verdict.
+Five sponsors, each a distinct load-bearing job: **Daytona** = safe isolated execution of an untrusted link; **Oxylabs** = SG proxy beats the cloak; **Nosana** = scam analysis from the agent's behavioral transcript (must ship); **ai&** = human explanation; **Doubleword** = OCR the trap (DeepSeek-OCR-2 reads the literal phishing text off the screenshot — polish tier, redundant with DOM text).
+
+### Detection architecture: behavioral signals, not pixels
+
+The scam verdict comes from **behavioral and structural signals** the kit cannot fake — not from screenshots. A kit that copies the real Telegram logo is pixel-identical to the real `web.telegram.org` login page, so no vision model can separate them by pixels alone. Instead, the detonation worker runs as a **browser agent** that navigates the page, fills dummy values, and captures what the kit *does* (not just what it *looks like*). The agent produces a **transcript** fed to the LLM for verdict synthesis.
+
+**Evasion-proof signals (the kit CANNOT fake these):**
+- **Domain** — can't host on `telegram.org`
+- **Harvest POST endpoint + captured payload** — can't steal creds without a POST
+- **Cloak detected** (two-pass decoy vs. real) — cloaking IS the scam signal
+- **`api_id` / `api_hash` in JS** — needed for the worm to spread
+- **Field combo** (phone + OTP + 2FA) — removing fields breaks the harvest
+- **Redirect chain** — needed to reach the trap
+
+**The screenshot's job is the victim-facing Telegram reply** (the "see the trap" moment), not detection. The VLM (Nosana) processes the **agent transcript as text** — behavioral evidence is unfakeable where pixels are not. See `docs/nosana-finetuning.md` for the full decision record.
 
 ### Why this beats ScamShield (the core differentiator — vantage point, not gimmick)
 ScamShield / urlscan / VirusTotal scan from **datacenter IPs**, which cloaking kits detect and serve a decoy/403 to — so they get a structural **false "clean."** detonate.sg enters via an **Oxylabs SG residential IP** (the victim's vantage) and sees the **real** page, then returns *evidence* (screenshot + phone→OTP→2FA field fingerprint + redirect chain + OCR text) instead of a score. Even pure Level 1 (read-only) this is content ScamShield cannot reach.
 **Prove it live:** the mock kit must **cloak** — serve a boring decoy to datacenter/non-SG IPs, the real fake-Telegram page only to the SG residential exit. Demo runs the URL twice: without proxy = "what ScamShield sees" (decoy, clean) vs with SG proxy = "what the victim sees" (the trap). This side-by-side is the answer to "how is this different from ScamShield," on stage.
 
 ### How "detonation" actually works (no real credentials, ever)
-- **Level 1 — passive (the product behavior):** Playwright loads the link via the SG proxy and *reads* it — screenshot, DOM (fields phone→OTP→2FA + names/placeholders), JS (AJAX harvest endpoint, `api_id`/`api_hash`, contact-spread stub), redirect chain. Proves intent without typing anything. Production stays read-only here.
-- **Level 2 — active, MOCK KIT ONLY:** because the mock is our own page, Playwright types **dummy** values (`+65 9123 4567`, OTP `000000`) and clicks submit; we `page.waitForRequest` to **capture the harvest POST payload** — the "watch it steal the code" moment — and the spread stub logs "would message N contacts." Never done against a real link. This is why the mock kit must actually *perform* a fake AJAX harvest + spread (Person B).
+- **Level 1 — passive (the product behavior):** Playwright loads the link via the SG proxy and *reads* it — screenshot (for the victim reply), DOM (fields phone→OTP→2FA + names/placeholders), JS (AJAX harvest endpoint, `api_id`/`api_hash`, contact-spread stub), redirect chain, and the **accessibility tree** (a11y snapshot — the interactive element tree the agent reasons over). Proves intent without typing anything. Production stays read-only here.
+- **Level 2 — active, MOCK KIT ONLY:** because the mock is our own page, the **browser agent** types **dummy** values (`+65 9123 4567`, OTP `000000`, 2FA `dummy2FA!`) and clicks submit; we `page.waitForRequest` to **capture the harvest POST payload** — the "watch it steal the code" moment — and the spread stub logs "would message N contacts." The agent produces a **transcript** (observed state + actions + captured POSTs) fed to the LLM for verdict synthesis. Never done against a real link. This is why the mock kit must actually *perform* a fake AJAX harvest + spread (Person B).
 
 **Product flow (the bot):** user forwards the lure → bot extracts the URL from the forwarded message text/entities → instant provisional reply from text heuristics → bot **edits that message** to stream progress ("Detonating from a Singapore home connection… capturing… analyzing…") → final reply: a **media group** of the two screenshots (decoy vs real trap) + a formatted verdict (SCAM header, harvested fields, worm line) + **inline-keyboard CTAs** ("Report to ScamShield 1799", "How to enable Telegram 2FA").
 
-Locked decisions (from user): **Telegram-bot frontend** (forward-to-bot, zero app-switching); **mock kit only** on stage (team-built Telegram-login clone; never live criminal infra or a real account); **TypeScript**, one repo; **Nosana vision is must-ship**.
+Locked decisions (from user): **Telegram-bot frontend** (forward-to-bot, zero app-switching); **mock kit only** on stage (team-built Telegram-login clone; never live criminal infra or a real account); **TypeScript**, one repo; **Nosana must-ship** (scam analysis from agent transcript, not pixel-based brand classification — see `docs/nosana-finetuning.md`).
 
 The real risk with a 5h clock is not code — it's **unverified sponsor access**. Two things can sink the demo: Daytona egress being blocked (Tier 1/2), and Nosana GPU not warming in time. Both are neutralized by front-loading smoke tests + starting the Nosana download at minute 0, with pre-decided fallbacks that keep every sponsor in the narrative.
 
@@ -47,7 +61,7 @@ Each smoke test is ~5–10 min and de-risks one sponsor. If a test fails, take t
 
 **Fallbacks (pre-decided, keep sponsors load-bearing):**
 - **Daytona egress blocked:** run Playwright on a permitted host (local Node / small server); keep Daytona load-bearing by running the **isolated untrusted-DOM/JS parsing** step inside the sandbox. Or add the Oxylabs gateway IP to `networkAllowList` (IPv4 CIDR, max 10) if on Tier 3/4. Escalate to sponsor reps for a tier bump.
-- **Nosana cold at demo time:** flip vision `baseURL` to **ai& `moonshotai/kimi-k2.6`** (vision-capable, same OpenAI wire format) or a cached result for the demo URL. Nosana stays primary in the pitch; fallback is a 2-line env swap.
+- **Nosana cold at demo time:** flip `baseURL` to **ai&** (same OpenAI wire format; the agent transcript is text input, so any text-capable model works). Or use a cached result for the demo URL. Nosana stays primary in the pitch; fallback is a 2-line env swap.
 - **ai& flaky:** hardcoded verdict template keyed off the extracted fields.
 
 ---
@@ -62,12 +76,14 @@ Each smoke test is ~5–10 min and de-risks one sponsor. If a test fails, take t
   RUN npx playwright install --with-deps chromium
   ```
   `daytona snapshot create det-playwright --dockerfile ./Dockerfile --cpu 2 --memory 4 --disk 10` (build `--platform=linux/amd64`, pin the tag — no `latest`).
-- Detonation worker (runs inside sandbox): **two passes** for the cloak contrast — (a) **no proxy** (datacenter IP) → captures the decoy = "what ScamShield sees"; (b) **with** `proxy: { server:"http://pr.oxylabs.io:7777", username:"customer-USER-cc-SG-sessid-<id>", password }` → captures the real trap. Each pass: `goto(mockUrl)` → full-page screenshot + DOM extract. Emit a **fixed JSON artifact** (`/tmp/out.json`) with both, read back via `sandbox.fs.downloadFile`:
+- Detonation worker (runs inside sandbox): **two passes** for the cloak contrast — (a) **no proxy** (datacenter IP) → captures the decoy = "what ScamShield sees"; (b) **with** `proxy: { server:"http://pr.oxylabs.io:7777", username:"customer-USER-cc-SG-sessid-<id>", password }` → captures the real trap. Each pass: `goto(mockUrl)` → full-page screenshot (for the victim reply) + DOM extract + **a11y snapshot** (interactive element tree). On the SG pass, the **browser agent** runs Level 2 (active fill, MOCK KIT ONLY): navigates the multi-step form, types dummy values, captures the harvest POST, and emits an **agent transcript** (observed state + actions + captured POSTs). Emit a **fixed JSON artifact** (`/tmp/out.json`) with both, read back via `sandbox.fs.downloadFile`:
   ```json
   { "decoyScreenshotBase64":"…", "screenshotBase64":"…", "finalUrl":"…", "redirectChain":[…],
     "fields":[{"name":"phone","type":"tel","placeholder":"+65…"}, …],
     "ajaxEndpoints":["/api/harvest"],
-    "spreadSignals":["contacts","api_id","api_hash"] }
+    "spreadSignals":["contacts","api_id","api_hash"],
+    "agentTranscript":"<observed state + actions + captured POSTs>",
+    "capturedHarvestPayloads":[{"url":"…","body":"…"}] }
   ```
 - **Deliverables:** `lib/daytona.ts` (create/run/read/teardown, try/finally `delete()`), `lib/oxylabs.ts` (proxy string builder), detonation worker script, the JSON contract above.
 
@@ -81,11 +97,11 @@ Each smoke test is ~5–10 min and de-risks one sponsor. If a test fails, take t
 
 ### Person C — AI lane (Nosana must-ship + ai&)
 - **Minute 0:** kick off Nosana deploy (gate item 3) so weights download while you do everything else.
-- `lib/nosana.ts` — OpenAI-compatible vision client → `{brand, is_login_form, confidence}` using vLLM `response_format:{type:"json_object"}`. Downscale screenshot ≤1280px before base64 (avoids 24GB OOM / token blowup).
-- `lib/aiand.ts` — consumer verdict + explanation from (fields + vision JSON); **template fallback** hardcoded. Cheap model default (`deepseek-v4-flash` / free `qwen3.6-27b`).
-- Wire the **vision fallback**: env flag flips `baseURL` from Nosana → ai& `moonshotai/kimi-k2.6`.
-- `lib/doubleword.ts` — OCR the screenshot via `DeepSeek-OCR-2` (`baseURL: https://api.doubleword.ai/v1`); returns the literal on-page text (field labels, fake URL, "enter the code" line) as evidence strings for the card. Reuses the Nosana screenshot plumbing. **Build after the core 4 work** (polish tier).
-- **Deliverables:** `lib/nosana.ts`, `lib/aiand.ts`, `lib/doubleword.ts`, verdict-merge helper shared with Person B, cached result for the demo URL.
+- `lib/nosana.ts` — OpenAI-compatible client that analyzes the **agent transcript** (behavioral evidence: observed state, actions, captured POSTs, field combo, domain, cloak) → `{is_scam, brand_impersonated, evidence[], confidence, explanation}` using vLLM `response_format:{type:"json_object"}`. **Not pixel-based** — a kit with the real logo is pixel-identical to the real site, so no vision model can separate them. The transcript's behavioral signals (harvest POST, field combo, non-legit domain) are unfakeable. See `docs/nosana-finetuning.md`.
+- `lib/aiand.ts` — consumer verdict + explanation from (agent transcript + Nosana JSON); **template fallback** hardcoded. Cheap model default (`deepseek-v4-flash` / free `qwen3.6-27b`).
+- Wire the **Nosana fallback**: env flag flips `baseURL` from Nosana → ai& (same OpenAI wire format, text input works on both).
+- `lib/doubleword.ts` — OCR the screenshot via `DeepSeek-OCR-2` (`baseURL: https://api.doubleword.ai/v1`); returns the literal on-page text as evidence strings for the card. **Redundant with DOM `innerText`** (the agent transcript already has exact text) — polish tier only, kept for the 5th-sponsor narrative. **Build after the core 4 work**.
+- **Deliverables:** `lib/nosana.ts` (transcript analysis), `lib/aiand.ts`, `lib/doubleword.ts`, verdict-merge helper shared with Person B, cached result for the demo URL.
 
 ---
 
@@ -104,26 +120,26 @@ Bot runs as a plain Node/TS process (`tsx bot/index.ts`) on a laptop via long-po
 2. **Mock kit live + cloaking** (Person B) + **Daytona/Oxylabs detonation returns JSON** against it (Person A). — *core is now real; the SG-vs-datacenter contrast works.*
 3. **Bot shell**: forward → provisional reply → progress edits → send both screenshots (decoy vs real) + field list. — *the visceral moment + the "beats ScamShield" proof exist without any AI.*
 4. **ai& verdict copy** on the card.
-5. **Nosana vision badge** "Telegram impersonation 98%" — pitch climax.
-6. **Doubleword OCR evidence** — literal harvested text on the card (5th sponsor, polish tier).
+5. **Nosana transcript analysis** — agent transcript → `{is_scam, brand_impersonated, evidence[], confidence}` (evasion-proof: based on behavior, not pixels). Pitch climax: the behavioral evidence (harvest POST captured, field combo, non-legit domain).
+6. **Doubleword OCR evidence** — literal harvested text on the card (5th sponsor, polish tier, redundant with DOM text).
 7. **Polish**: provisional text verdict, CTAs, pre-warm/cache the demo URL, smooth the streaming.
 
 ## Bot UX direction (the "UI" is Telegram message design)
 - **Native, not a web app.** Design lives in message formatting: HTML/MarkdownV2 for bold verdict + monospace evidence, a **media group** for the two screenshots, an **inline keyboard** for CTAs. Use `sendChatAction('upload_photo')` while working so it feels alive.
-- **The money moment (in-chat):** one message edited live through the steps ("Detonating from a Singapore home connection… capturing… analyzing…"), then the **two screenshots arrive as a media group** — caption 1 "🌐 What a scanner (ScamShield) sees" = decoy, caption 2 "🇸🇬 What you'd see from Singapore" = the real Telegram-login trap. Then the verdict message: **🚨 SCAM**, harvested fields (phone/OTP/2FA), vision "Telegram impersonation 98%", OCR'd "enter your code" line, worm one-liner. This side-by-side in the victim's own app is the winning 20 seconds and the ScamShield differentiator in one shot.
+- **The money moment (in-chat):** one message edited live through the steps ("Detonating from a Singapore home connection… capturing… analyzing…"), then the **two screenshots arrive as a media group** — caption 1 "🌐 What a scanner (ScamShield) sees" = decoy, caption 2 "🇸🇬 What you'd see from Singapore" = the real Telegram-login trap. Then the verdict message: **🚨 SCAM**, harvested fields (phone/OTP/2FA), behavioral evidence (harvest POST captured, field combo, non-legit domain), worm one-liner. This side-by-side in the victim's own app is the winning 20 seconds and the ScamShield differentiator in one shot.
 - **Optional stretch:** a one-page branded landing (name + QR/deep-link `t.me/detonate_bot`) purely for the pitch slide — not the product surface. Skip unless time.
 - Pre-warm/cache the demo URL so the whole exchange is fast and reliable on venue Wi-Fi.
 
 ## Verification (end-to-end, before the pitch)
-- Gate: egress `200`, Oxylabs returns SG, ai& completion returns text, Nosana endpoint returns valid JSON on a test screenshot, mock URL loads from the sandbox, bot receives a forwarded message's URL.
-- Full flow (in Telegram): **forward** the canned GST lure to the bot → provisional "suspicious" reply <~1s → detonation via Daytona+Oxylabs against mock kit → bot sends decoy vs real screenshots + harvested fields + worm line → vision % + LLM explanation (or ai&-vision fallback) + OCR text → CTAs render as buttons → **no credentials ever submitted**, framed as controlled replica.
+- Gate: egress `200`, Oxylabs returns SG, ai& completion returns text, Nosana endpoint returns valid JSON on a test **agent transcript**, mock URL loads from the sandbox, bot receives a forwarded message's URL.
+- Full flow (in Telegram): **forward** the canned GST lure to the bot → provisional "suspicious" reply <~1s → detonation via Daytona+Oxylabs against mock kit → bot sends decoy vs real screenshots + harvested fields + worm line → Nosana transcript analysis (behavioral evidence) + LLM explanation (or ai& fallback) + OCR text → CTAs render as buttons → **no credentials ever submitted**, framed as controlled replica.
 - Run the 2-minute demo twice with the presenter's phone/Telegram Desktop screen-shared; pre-warm all calls for the demo URL; keep the long-polling bot process running on a laptop (not venue-hosted).
 
 ## Top risks → mitigations
 | Risk | Mitigation |
 |------|-----------|
 | Daytona Tier 1/2 blocks egress | Playwright on permitted host; Daytona runs isolated DOM/JS parse (stays load-bearing). Test minute 1. |
-| Nosana GPU cold at demo | Started minute 0; fallback to ai& `kimi-k2.6` vision via baseURL swap; cache demo-URL result. |
+| Nosana GPU cold at demo | Started minute 0; fallback to ai& via baseURL swap (same OpenAI wire format, text transcript input works on both); cache demo-URL result. |
 | ai& venue-WiFi flake | Hardcoded template verdict keyed to fields. |
 | Mock kit reads as gov form, not Telegram | Rebuild to Telegram-login clone early (Person B, first 45 min). |
 | Time runs out | Build order above degrades gracefully; screenshot+fields moment works with zero AI. |

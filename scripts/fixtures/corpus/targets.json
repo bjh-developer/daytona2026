@@ -1,0 +1,179 @@
+[
+  {
+    "id": "gov-real-001",
+    "url": "http://localhost:5174/?force=real",
+    "scam_type": "government_impersonation",
+    "active_fill": true,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Government / MSF (GST Voucher)",
+      "evidence": [
+        "mimics a Singapore government payout page (GST Voucher / MSF branding)",
+        "asks for NRIC and mobile number on a payout-claim page",
+        "POSTs collected data to /api/harvest",
+        "hosted on a non-government domain"
+      ],
+      "confidence": 0.95,
+      "explanation": "This page impersonates a Singapore government payout scheme to harvest NRIC and mobile numbers.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "gov-decoy-001",
+    "url": "http://localhost:5174/?force=decoy",
+    "scam_type": "government_impersonation",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Government / MSF (GST Voucher)",
+      "evidence": [
+        "serves a decoy to scanners (cloaking detected)",
+        "underlying kit impersonates a government payout page"
+      ],
+      "confidence": 0.8,
+      "explanation": "Cloaked government-impersonation page — serves a decoy to scanners but reveals the trap to SG visitors.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "telegram-real-001",
+    "url": "http://localhost:5174/verify?force=real",
+    "scam_type": "telegram_login_clone",
+    "active_fill": true,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Telegram",
+      "evidence": [
+        "clones the Telegram sign-in page",
+        "asks for phone, login code (OTP), and 2FA cloud password on a webpage",
+        "Telegram never asks for login codes on a website",
+        "POSTs credentials to /api/harvest",
+        "hosted on a non-telegram.org domain"
+      ],
+      "confidence": 0.98,
+      "explanation": "This page clones Telegram's login to steal your phone number, login code, and 2FA password.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "telegram-decoy-001",
+    "url": "http://localhost:5174/verify?force=decoy",
+    "scam_type": "telegram_login_clone",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "Telegram",
+      "evidence": [
+        "serves a decoy to scanners (cloaking detected)",
+        "underlying kit clones the Telegram login"
+      ],
+      "confidence": 0.8,
+      "explanation": "Cloaked Telegram-login clone — serves a decoy to scanners but reveals the trap to SG visitors.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "meme-real-001",
+    "url": "http://localhost:5174/meme?force=real",
+    "scam_type": "meme_scam",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": true,
+      "brand_impersonated": "None (bait-and-switch meme)",
+      "evidence": [
+        "bait-and-switch aftermath page displaying 'you got scammed' messaging",
+        "no credential harvest form present",
+        "hosted on a non-legitimate domain"
+      ],
+      "confidence": 0.7,
+      "explanation": "This is a bait-and-switch meme page rather than a credential harvester, but still deceptive.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "legit-telegram-001",
+    "url": "https://telegram.org",
+    "scam_type": "legitimate",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": false,
+      "brand_impersonated": "Telegram (legitimate)",
+      "evidence": [
+        "hosted on the official telegram.org domain",
+        "no harvest POST observed",
+        "legitimate Telegram landing page"
+      ],
+      "confidence": 0.95,
+      "explanation": "This is the legitimate Telegram website on its official domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "legit-webtelegram-001",
+    "url": "https://web.telegram.org",
+    "scam_type": "legitimate",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": false,
+      "brand_impersonated": "Telegram (legitimate)",
+      "evidence": [
+        "hosted on the official web.telegram.org domain",
+        "legitimate Telegram Web client"
+      ],
+      "confidence": 0.95,
+      "explanation": "This is the legitimate Telegram Web client on its official domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "legit-govsg-001",
+    "url": "https://www.gov.sg",
+    "scam_type": "legitimate",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": false,
+      "brand_impersonated": "Singapore Government (legitimate)",
+      "evidence": [
+        "hosted on the official gov.sg domain",
+        "legitimate government information page"
+      ],
+      "confidence": 0.95,
+      "explanation": "This is the legitimate Singapore government portal on its official domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "legit-mom-001",
+    "url": "https://www.mom.gov.sg",
+    "scam_type": "legitimate",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": false,
+      "brand_impersonated": "Ministry of Manpower (legitimate)",
+      "evidence": [
+        "hosted on the official mom.gov.sg domain",
+        "legitimate Ministry of Manpower page"
+      ],
+      "confidence": 0.95,
+      "explanation": "This is the legitimate Ministry of Manpower website on its official domain.",
+      "source": "ground-truth"
+    }
+  },
+  {
+    "id": "legit-cpf-001",
+    "url": "https://www.cpf.gov.sg",
+    "scam_type": "legitimate",
+    "active_fill": false,
+    "ground_truth": {
+      "is_scam": false,
+      "brand_impersonated": "CPF (legitimate)",
+      "evidence": [
+        "hosted on the official cpf.gov.sg domain",
+        "legitimate CPF Board page"
+      ],
+      "confidence": 0.95,
+      "explanation": "This is the legitimate CPF Board website on its official domain.",
+      "source": "ground-truth"
+    }
+  }
+]
