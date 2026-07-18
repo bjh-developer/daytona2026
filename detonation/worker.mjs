@@ -117,8 +117,8 @@ async function fillAndAdvance(page, fields, transcript) {
   const post = await postP;
   // networkidle is unreliable behind a slow residential proxy — domcontentloaded
   // + a short settle is enough and never hangs the budget.
-  await page.waitForLoadState("domcontentloaded", { timeout: 6000 }).catch(() => {});
-  await page.waitForTimeout(800);
+  await page.waitForLoadState("domcontentloaded", { timeout: 4000 }).catch(() => {});
+  await page.waitForTimeout(500);
   return { harvest: post ? (post.postData() ?? undefined) : undefined, navigated: page.url() !== before };
 }
 
@@ -334,8 +334,8 @@ async function onePass({ proxy, active }) {
       }
     }
     // SPA: wait for something interactive to actually render.
-    await page.waitForSelector("input, form, button, h1", { timeout: 15000 }).catch(() => {});
-    await page.waitForTimeout(1000);
+    await page.waitForSelector("input, form, button, h1", { timeout: 8000 }).catch(() => {});
+    await page.waitForTimeout(700);
 
     // HYBRID: walk the phishing funnel (gov claim → fake login), and at each
     // stage run the agent (observe + behavioral transcript for the Nosana
@@ -377,7 +377,7 @@ async function onePass({ proxy, active }) {
         }
       }
       if (!navigated) break; // couldn't advance → funnel ended
-      await page.waitForSelector("input, form, h1, button", { timeout: 8000 }).catch(() => {});
+      await page.waitForSelector("input, form, h1, button", { timeout: 4000 }).catch(() => {});
     }
 
     // Merge evidence across all stages.
@@ -421,16 +421,16 @@ async function onePass({ proxy, active }) {
 }
 
 // Pass 1: scanner view (non-SG exit, passive) → the decoy a scanner would see.
-// Non-fatal: if this exit is dead, we still verdict from the SG pass (no cloak).
-let scanner = null;
-try {
-  scanner = await onePass({ proxy: SCANNER_PROXY, active: false });
-} catch (err) {
-  process.stderr.write(`[worker] scanner pass failed (${err.message}); continuing without decoy/cloak\n`);
-}
-// Pass 2: the REAL funnel from the SG residential exit (active fill + harvest).
-// This one is load-bearing — let it throw if all retries fail.
-const sg = await onePass({ proxy: PROXY, active: ACTIVE });
+// Run BOTH passes concurrently — they're independent browsers/proxies, so the
+// scanner's ~5s doesn't add to the SG funnel's ~15s (was sequential → ~23s).
+// Scanner is non-fatal (null if its exit is dead); SG is load-bearing.
+const [scanner, sg] = await Promise.all([
+  onePass({ proxy: SCANNER_PROXY, active: false }).catch((err) => {
+    process.stderr.write(`[worker] scanner pass failed (${err.message}); continuing without decoy/cloak\n`);
+    return null;
+  }),
+  onePass({ proxy: PROXY, active: ACTIVE }),
+]);
 
 // Cloak = the two vantages rendered materially different landing pages. Only
 // meaningful when the scanner pass succeeded and at least one pass used a proxy.
