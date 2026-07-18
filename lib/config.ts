@@ -34,7 +34,21 @@ export const config = {
     baseUrl: process.env.NOSANA_BASE_URL || "",
     apiKey: process.env.NOSANA_API_KEY || "placeholder",
     model: process.env.NOSANA_MODEL || "qwen2.5-vl",
+    // Text model Nosana serves for transcript-based scam analysis
+    // (docs/nosana-finetuning.md §5.3). Distinct from the VL `qwen2.5-vl`.
+    textModel: process.env.NOSANA_TEXT_MODEL || "qwen2.5-7b-instruct",
     forceFallback: bool(process.env.NOSANA_FALLBACK, false),
+  },
+  // LLM-driven browser agent (docs/nosana-finetuning.md §5). Decides fill/click/done
+  // from the page's a11y tree + visible text. Defaults to ai& so it works with the
+  // existing key; override via AGENT_LLM_* to point at a different OpenAI-compatible endpoint.
+  agent: {
+    llmBaseUrl: process.env.AGENT_LLM_BASE_URL || process.env.AIAND_BASE_URL || "https://api.aiand.com/v1",
+    llmApiKey: process.env.AGENT_LLM_API_KEY || process.env.AIAND_API_KEY || "",
+    llmModel: process.env.AGENT_LLM_MODEL || process.env.AIAND_MODEL || "deepseek-ai/deepseek-v4-flash",
+    maxSteps: Number(process.env.AGENT_MAX_STEPS || 6),
+    // Record a behavioral transcript even when active fill is off (observe-only).
+    captureTranscript: bool(process.env.CAPTURE_TRANSCRIPT, true),
   },
   doubleword: {
     apiKey: process.env.DOUBLEWORD_API_KEY || "",

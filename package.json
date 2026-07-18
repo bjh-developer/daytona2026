@@ -9,6 +9,10 @@
     "mock-kit": "tsx mock-kit/server.ts",
     "worker": "tsx detonation/worker.ts",
     "smoke": "tsx scripts/smoke.ts",
+    "capture-corpus": "tsx scripts/capture-corpus.ts",
+    "fetch-openphish": "tsx scripts/fetch-openphish.ts",
+    "render-training": "tsx scripts/render-training.ts",
+    "few-shot-baseline": "tsx scripts/few-shot-baseline.ts",
     "typecheck": "tsc --noEmit",
     "start-work": "bash start-work.sh",
     "stop-work": "bash stop-work.sh"

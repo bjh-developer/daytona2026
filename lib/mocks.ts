@@ -1,5 +1,5 @@
 import zlib from "node:zlib";
-import type { DetonationResult, OcrResult, VisionResult } from "./types.ts";
+import type { AgentTranscript, DetonationResult, OcrResult, ScamVerdict, VisionResult } from "./types.ts";
 
 // ── Minimal dependency-free PNG encoder (solid color) ───────────────
 // Enough to produce real PNG bytes for Telegram sendPhoto in mock mode.
@@ -72,6 +72,46 @@ export function mockDetonation(url: string): DetonationResult {
     spreadSignals: ["contacts", "api_id", "api_hash", "forwardToContacts()"],
     capturedHarvestPayload: JSON.stringify({ phone: "+6591234567", otp: "00000", twofa: "test" }),
     timings: { scannerMs: 1200, sgMs: 2400 },
+    agentTranscript: mockTranscript(url),
+  };
+}
+
+/** Canned agent behavioral transcript matching mockDetonation (docs/nosana-finetuning.md §5). */
+export function mockTranscript(url: string): AgentTranscript {
+  let domain = "";
+  try { domain = new URL(url).hostname; } catch { /* leave empty */ }
+  return {
+    goal: "Determine if this page is a credential-harvesting scam.",
+    steps: [
+      {
+        kind: "observed",
+        label: `URL: ${url}/verify`,
+        detail:
+          `Title: "Telegram"\n` +
+          `Visible text: Sign in to Telegram. Please confirm your number and the code we sent you to claim your GST Voucher.\n` +
+          `Interactive elements:\n` +
+          `    - textbox "Mobile number"\n` +
+          `    - textbox "Login code"\n` +
+          `    - password "Cloud password (2FA)"\n` +
+          `    - button "Next"`,
+      },
+      { kind: "action", label: `fill textbox "Mobile number" with "+6591234567"`, detail: "dummy phone" },
+      { kind: "action", label: `fill textbox "Login code" with "000000"`, detail: "dummy OTP" },
+      { kind: "action", label: `fill password "Cloud password (2FA)" with "dummy2FA!"`, detail: "dummy 2FA" },
+      { kind: "action", label: `click button "Next"`, detail: "submit the form" },
+      {
+        kind: "observed_after",
+        label: `Captured POST: POST ${url}/api/harvest`,
+        detail: `body: {"phone":"+6591234567","otp":"000000","twofa":"dummy2FA!"}`,
+      },
+      { kind: "observed_after", label: "Page text changed", detail: "Verifying…" },
+    ],
+    context: {
+      domain,
+      claimed_brand: "Telegram",
+      real_brand_domain: "web.telegram.org",
+      brand_note: "Telegram never asks for login codes on a website.",
+    },
   };
 }
 
@@ -86,6 +126,24 @@ export function mockOcr(): OcrResult {
       "Enter the code we sent to your phone",
       "Cloud password (2FA)",
     ],
+    source: "mock",
+  };
+}
+
+/** Canned scam verdict matching the mock transcript (docs/nosana-finetuning.md §5.1). */
+export function mockScamVerdict(): ScamVerdict {
+  return {
+    is_scam: true,
+    brand_impersonated: "Telegram",
+    evidence: [
+      "asks for login code on a webpage (Telegram never does)",
+      "POSTs credentials to /api/harvest",
+      "hosted on a non-telegram domain",
+      "captures phone + OTP + 2FA together",
+    ],
+    confidence: 0.98,
+    explanation:
+      "This page impersonates Telegram and exfiltrates the phone number, login code, and 2FA password to a harvest endpoint — the signature of a credential-stealing scam.",
     source: "mock",
   };
 }
