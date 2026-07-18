@@ -9,11 +9,5 @@ export default defineConfig({
   build: { cssMinify: "esbuild" },
   server: {
     port: 5174,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8081',
-        changeOrigin: true,
-      },
-    },
   },
 })
