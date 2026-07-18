@@ -8,9 +8,7 @@ Forward a suspicious message to a Telegram bot. It opens the link in an isolated
 
 [![Daytona](https://img.shields.io/badge/Daytona-isolated%20execution-6c5ce7)](https://daytona.io)
 [![Oxylabs](https://img.shields.io/badge/Oxylabs-SG%20residential%20proxy-0984e3)](https://oxylabs.io)
-[![Nosana](https://img.shields.io/badge/Nosana-GPU%20inference-00b894)](https://nosana.io)
 [![ai&](https://img.shields.io/badge/ai%26-verdict%20LLM-e17055)](https://aiand.com)
-[![Doubleword](https://img.shields.io/badge/Doubleword-OCR-fdcb6e)](https://doubleword.ai)
 
 </div>
 
