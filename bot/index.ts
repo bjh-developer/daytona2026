@@ -27,20 +27,17 @@ function verdictMessage(r: CheckResult): string {
   if (v.harvestedFields.length) {
     lines.push("", `🔍 <b>This page harvests:</b>`, ...v.harvestedFields.map((f) => `   • ${esc(f)}`));
   }
-  if (r.vision?.is_login_form) {
-    lines.push("", `👁️ Vision: <b>${esc(r.vision.brand)} login impersonation ${Math.round(r.vision.confidence * 100)}%</b>`);
+  // Impersonation verdict comes from the behavioral scam classifier (stronger
+  // than pixel-vision). Lead with the brand + confidence.
+  const sc = r.scamClassification;
+  if (sc?.is_scam && sc.brand_impersonated && !/^(none|unknown)$/i.test(sc.brand_impersonated)) {
+    lines.push("", `🚩 <b>${esc(sc.brand_impersonated)} impersonation — ${Math.round(sc.confidence * 100)}% scam</b>`);
   }
   if (r.ocr?.evidenceLines?.length) {
     lines.push("", `📄 <b>It literally says:</b>`, ...r.ocr.evidenceLines.map((l) => `   “${esc(l)}”`));
   }
-  if (r.scamClassification) {
-    const sc = r.scamClassification;
-    const emoji = sc.is_scam ? "🤖" : "✅";
-    const top = sc.evidence[0] ? ` — ${esc(sc.evidence[0])}` : "";
-    lines.push(
-      "",
-      `${emoji} <b>Behavioral check (${Math.round(sc.confidence * 100)}%):</b> ${esc(sc.explanation)}${top}`,
-    );
+  if (sc?.evidence?.length) {
+    lines.push("", `🤖 <b>Behavioral analysis:</b>`, ...sc.evidence.slice(0, 3).map((e) => `   • ${esc(e)}`));
   }
   if (r.detonation.cloakDetected) {
     lines.push("", `🕵️ <i>It showed a harmless decoy to the scanner but the real trap to a Singapore visitor — that's why link-checkers miss it.</i>`);
