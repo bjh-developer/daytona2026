@@ -25,3 +25,7 @@ console.log(
   `Screenshots: real=${result.detonation.screenshotBase64.length}b64 ` +
     `decoy=${result.detonation.decoyScreenshotBase64?.length ?? 0}b64`,
 );
+console.log(
+  "Daytona:",
+  result.daytona.ok ? `sandbox ${result.daytona.sandboxId} created ✅` : `unavailable (${result.daytona.reason})`,
+);

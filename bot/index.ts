@@ -41,6 +41,9 @@ function verdictMessage(r: CheckResult): string {
     lines.push("", `🕵️ <i>It showed a harmless decoy to the scanner but the real trap to a Singapore visitor — that's why link-checkers miss it.</i>`);
   }
   lines.push("", `🪱 ${esc(v.wormLine)}`);
+  if (r.daytona.ok) {
+    lines.push("", `🧨 <i>Isolated in Daytona sandbox ${esc(r.daytona.sandboxId.slice(0, 8))} — this hackathon's Tier 1 credits block the sandbox's live internet, so the page-fetch itself ran locally.</i>`);
+  }
   return lines.join("\n");
 }
 

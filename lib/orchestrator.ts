@@ -1,6 +1,6 @@
 import { config } from "./config.ts";
 import { extractUrl, provisionalVerdict } from "./extract.ts";
-import { detonate } from "./daytona.ts";
+import { detonate, daytonaShowcase } from "./daytona.ts";
 import { classifyBrand } from "./nosana.ts";
 import { ocrScreenshot } from "./doubleword.ts";
 import { generateVerdict } from "./aiand.ts";
@@ -22,9 +22,15 @@ export async function runCheck(text: string, onProgress: ProgressFn = () => {}):
   const isOwnMockKit = url.startsWith(config.mockKitUrl);
 
   await onProgress({ step: "creating-sandbox", label: "Spinning up an isolated sandbox…" });
+  // Daytona proof-of-life runs alongside the real detonation, never gates it
+  // (this hackathon's org is Tier 1 — sandbox egress is blocked org-wide, so
+  // the actual page-fetch runs locally; see lib/daytona.ts for why).
+  const daytonaPromise = config.useMocks
+    ? Promise.resolve({ ok: true as const, sandboxId: "mock-sandbox" })
+    : daytonaShowcase();
   await onProgress({ step: "detonating-scanner", label: "Visiting as a scanner would (datacenter IP)…" });
   await onProgress({ step: "detonating-sg", label: "Detonating from a Singapore home connection…" });
-  const detonation = await detonate(url, isOwnMockKit);
+  const [detonation, daytona] = await Promise.all([detonate(url, isOwnMockKit), daytonaPromise]);
 
   await onProgress({ step: "vision", label: "Identifying what it impersonates…" });
   const [vision, ocr] = await Promise.all([
@@ -36,5 +42,5 @@ export async function runCheck(text: string, onProgress: ProgressFn = () => {}):
   const verdict = await generateVerdict(detonation, vision, ocr);
 
   await onProgress({ step: "done", label: "Done." });
-  return { url, detonation, vision, ocr, verdict, provisional };
+  return { url, detonation, vision, ocr, verdict, provisional, daytona };
 }

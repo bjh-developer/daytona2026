@@ -64,6 +64,8 @@ export interface CheckResult {
   verdict: Verdict;
   /** Provisional text-only guess returned before detonation completes. */
   provisional: { level: Verdict["level"]; reason: string };
+  /** Daytona proof-of-life for the pitch — real sandbox created, or why not. */
+  daytona: { ok: true; sandboxId: string } | { ok: false; reason: string };
 }
 
 /** Progress event streamed back to the bot so it can edit its status message. */
